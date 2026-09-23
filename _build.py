@@ -5,7 +5,7 @@ import json, os, html as H
 OUT = os.path.dirname(os.path.abspath(__file__)) + '/'
 DOMAIN = 'https://www.warin-energie.de'
 TODAY = '2026-09-23'
-VER = '20260923-5'
+VER = '20260923-6'
 CO = dict(name='Warin Energie GmbH', brand='Warin Energie', street='Auf dem Hügel 21', zip='52249', city='Eschweiler',
           tel='0163 823 37 13', telh='+491638233713', mail='c.warin@warin-energie.de', office='office@warin-energie.de',
           person='Christoph Warin', lat='50.83367', lon='6.26860')
