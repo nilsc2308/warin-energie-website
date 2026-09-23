@@ -32,7 +32,7 @@
   let lastY = scrollY;
   const onScrollHead = () => {
     const y = scrollY;
-    const overUntil = sceneEl && root.classList.contains('js-motion') ? sceneEl.offsetHeight - innerHeight * .6 : 40;
+    const overUntil = sceneEl && root.classList.contains('js-motion') ? sceneEl.offsetHeight - innerHeight - 8 : 40;
     const over = document.body.classList.contains('home') && y < overUntil;
     head.classList.toggle('over', over);
     head.classList.toggle('solid', !over && y > 4);
@@ -147,55 +147,55 @@
   if (document.readyState === 'complete') late(); else addEventListener('load', late);
 
   // ================= STARTSEITE =================
-  // Szene: 5 Fotos, 4 Blenden. Zeitplan: Text raus -> Blende -> nächster Text rein. Nie zwei Texte gleichzeitig.
+  // Szene „Der Weg einer Kilowattstunde“: Einstieg → Markt → Übertragungsnetz → Verteilnetz → Ihr Betrieb → Rechnung.
+  // Fester Zeitplan: Text raus → Weiterfahren → neue Rechnungszeile + neuer Text rein. Nie zwei Texte gleichzeitig.
   const scene = $('.scene');
   if (scene && motion) {
-    const fr = $$('.frame', scene), caps = $$('.cap', scene), bars = $$('.s-prog i', scene);
-    const ha = $('.half.a', scene), hb = $('.half.b', scene);
-    // Die Blitz-Hälften zeigen dasselbe Foto wie Bild 1
-    [ha, hb].forEach(h => h.appendChild($('img', fr[0]).cloneNode()));
+    const fr = $$('.frame', scene), caps = $$('.cap', scene), bill = $('.bill', scene), lines = $$('.bl', scene);
+    const route = $('.route', scene), stops = $$('.rt-s', scene), dot = $('.rt-dot', scene), fill = $('.rt-line i', scene), dim = $('.dim', scene);
     const jag = [0, -5, 2, -8, -2, -11, 1, -6, -13, -3, -9, 0, -7];
-    const wipe = p => { const base = 116 - p * 142; fr[2].style.clipPath = `polygon(${jag.map((j, i) => `${(i / (jag.length - 1) * 100).toFixed(2)}% ${(base + j).toFixed(2)}%`).join(',')},100% 100%,0 100%)`; };
-    const iris = p => { fr[3].style.clipPath = `circle(${(p * 78).toFixed(2)}% at 62% 48%)`; };
-    wipe(0); iris(0);
-    const T = { in: .3, out: .3, hold: .7, blend: .8 };
+    const wipe = p => { const base = 116 - p * 142; fr[1].style.clipPath = `polygon(${jag.map((j, i) => `${(i / (jag.length - 1) * 100).toFixed(2)}% ${(base + j).toFixed(2)}%`).join(',')},100% 100%,0 100%)`; };
+    wipe(0);
+    const T = { in: .3, out: .3, hold: .75, move: .9 };
+    const arrive = []; // Zeitpunkt, an dem Station k erreicht ist
     const tl = gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: scene, start: 'top top', end: 'bottom bottom', scrub: .6, invalidateOnRefresh: true,
-      onUpdate: s => { const p = s.progress * bars.length; bars.forEach((b, i) => gsap.set(b, { scaleX: Math.max(0, Math.min(1, p - i)) })); } } });
-    const capIn = (c, at) => tl.fromTo(c, { autoAlpha: 0, y: 36 }, { autoAlpha: 1, y: 0, duration: T.in, ease: 'power2.out' }, at);
+      onUpdate: () => { const tt = tl.time(); let cur = -1; stops.forEach((s, k) => { const on = tt >= arrive[k] - .01; s.classList.toggle('on', on); if (on) cur = k; }); stops.forEach((s, k) => s.classList.toggle('cur', k === cur)); bill.classList.toggle('live', tt >= arrive[stops.length - 1]); } } });
+    const capIn = (c, at) => tl.fromTo(c, { autoAlpha: 0, y: 36 }, { autoAlpha: 1, y: 0, duration: T.in, ease: 'power2.out', immediateRender: false }, at);
     const capOut = (c, at) => tl.to(c, { autoAlpha: 0, y: -36, duration: T.out, ease: 'power2.in' }, at);
-    const imgZoom = (f, at, d) => tl.fromTo($('img', f), { scale: 1.1 }, { scale: 1, duration: d }, at);
-    // Bild 1: Text steht beim Laden, läuft beim Scrollen raus
+    const lineIn = (k, at) => { const ls = lines.filter(l => +l.dataset.at === k); if (!ls.length) return; tl.to(ls.map(l => $('.ph', l)), { autoAlpha: 0, duration: T.in * .6, stagger: .12 }, at); tl.fromTo(ls.map(l => $('a', l)), { autoAlpha: 0, x: 24 }, { autoAlpha: 1, x: 0, duration: T.in, stagger: .12, ease: 'power2.out', immediateRender: false }, at + .06); };
+    const moveDot = (k, at) => { const p = (k / (stops.length - 1) * 100) + '%'; tl.to(dot, { left: p, duration: T.move, ease: 'power2.inOut' }, at); tl.to(fill, { scaleX: k / (stops.length - 1), duration: T.move, ease: 'power2.inOut' }, at); };
+    // Einstieg: Text steht beim Laden
     gsap.fromTo(caps[0], { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 1, ease: 'expo.out', delay: introDelay + .1 });
-    gsap.fromTo($('img', fr[0]), { scale: 1.12 }, { scale: 1.06, duration: 2.2, ease: 'power2.out', delay: introDelay });
-    let t = 0;
-    tl.to({}, { duration: .6 }, t); t += .6;
+    gsap.fromTo($('img', fr[0]), { scale: 1.12 }, { scale: 1.05, duration: 2.2, ease: 'power2.out', delay: introDelay });
+    let t = .6;
     tl.to(caps[0], { autoAlpha: 0, y: -36, duration: T.out, ease: 'power2.in', immediateRender: false }, t); t += T.out;
-    // Blende 1: Blitzschnitt
-    tl.set([ha, hb, fr[1]], { visibility: 'visible' }, t).set(fr[0], { visibility: 'hidden' }, t);
-    tl.fromTo([$('img', ha), $('img', hb)], { scale: 1.06 }, { scale: 1.06, duration: .01 }, t);
-    tl.to(ha, { xPercent: -64, yPercent: -10, rotation: -4, duration: T.blend, ease: 'power2.in' }, t);
-    tl.to(hb, { xPercent: 64, yPercent: 10, rotation: 4, duration: T.blend, ease: 'power2.in' }, t);
-    imgZoom(fr[1], t, T.blend + T.in + T.hold + T.out);
-    t += T.blend; tl.set([ha, hb], { visibility: 'hidden' }, t);
-    capIn(caps[1], t); t += T.in + T.hold; capOut(caps[1], t); t += T.out;
-    // Blende 2: Kurven-Wipe
+    // Zum Markt: Preiskurve steigt als Kante auf
     const w = { p: 0 };
-    tl.set(fr[2], { visibility: 'visible' }, t);
-    tl.to(w, { p: 1, duration: T.blend, ease: 'power2.inOut', onUpdate: () => wipe(w.p) }, t);
-    imgZoom(fr[2], t, T.blend + T.in + T.hold + T.out);
-    t += T.blend; capIn(caps[2], t); t += T.in + T.hold; capOut(caps[2], t); t += T.out;
-    // Blende 3: Iris
-    const ir = { p: 0 };
-    tl.set(fr[3], { visibility: 'visible' }, t);
-    tl.to(ir, { p: 1, duration: T.blend, ease: 'power2.inOut', onUpdate: () => iris(ir.p) }, t);
-    imgZoom(fr[3], t, T.blend + T.in + T.hold + T.out);
-    t += T.blend; capIn(caps[3], t); t += T.in + T.hold; capOut(caps[3], t); t += T.out;
-    // Blende 4: Zoom-Durchflug
-    tl.set(fr[4], { visibility: 'visible', opacity: 0 }, t);
-    tl.to($('img', fr[3]), { scale: 1.45, duration: T.blend, ease: 'power2.in' }, t);
-    tl.to(fr[4], { opacity: 1, duration: T.blend * .7, ease: 'power1.inOut' }, t + T.blend * .3);
-    tl.fromTo($('img', fr[4]), { scale: 1.2 }, { scale: 1, duration: T.blend + T.in + T.hold, ease: 'power2.out' }, t);
-    t += T.blend; capIn(caps[4], t); t += T.in;
+    tl.set(fr[1], { visibility: 'visible' }, t);
+    tl.to(w, { p: 1, duration: T.move, ease: 'power2.inOut', onUpdate: () => wipe(w.p) }, t);
+    tl.fromTo($('img', fr[1]), { scale: 1.12 }, { scale: 1, duration: T.move + T.in + T.hold }, t);
+    tl.fromTo([route, bill], { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: .35, immediateRender: false }, t + T.move - .35);
+    t += T.move; arrive[0] = t;
+    lineIn(1, t); capIn(caps[1], t); t += T.in + T.hold; capOut(caps[1], t); t += T.out;
+    // Weiterfahren entlang der Leitung: nächstes Foto schiebt sich von rechts herein
+    for (let k = 1; k <= 3; k++) {
+      const a = fr[k], b = fr[k + 1];
+      tl.set(b, { visibility: 'visible' }, t);
+      tl.fromTo(b, { xPercent: 100 }, { xPercent: 0, duration: T.move, ease: 'power2.inOut', immediateRender: false }, t);
+      tl.to(a, { xPercent: -35, duration: T.move, ease: 'power2.inOut' }, t);
+      tl.fromTo($('img', b), { scale: 1.1 }, { scale: 1, duration: T.move + T.in + T.hold, ease: 'none', immediateRender: false }, t);
+      moveDot(k, t);
+      t += T.move; arrive[k] = t;
+      tl.set(a, { visibility: 'hidden' }, t);
+      lineIn(k + 1, t); capIn(caps[k + 1], t); t += T.in + T.hold; capOut(caps[k + 1], t); t += T.out;
+    }
+    // Rechnung: Foto tritt zurück, die Rechnung wird zum Schlussbild
+    moveDot(4, t);
+    tl.to(dim, { opacity: 1, duration: T.move }, t);
+    tl.to($('img', fr[4]), { scale: 1.08, duration: T.move }, t);
+    tl.to(bill, { scale: innerWidth > 700 ? 1.12 : 1, y: innerWidth > 700 ? innerHeight * .04 : 0, duration: T.move, ease: 'power2.inOut' }, t);
+    t += T.move; arrive[4] = t;
+    lineIn(5, t); capIn(caps[5], t); t += T.in;
     tl.to({}, { duration: 1 }, t);
   }
 

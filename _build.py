@@ -5,7 +5,7 @@ import json, os, html as H
 OUT = os.path.dirname(os.path.abspath(__file__)) + '/'
 DOMAIN = 'https://www.warin-energie.de'
 TODAY = '2026-09-23'
-VER = '20260923-8'
+VER = '20260923-10'
 CO = dict(name='Warin Energie GmbH', brand='Warin Energie', street='Auf dem Hügel 21', zip='52249', city='Eschweiler',
           tel='0163 823 37 13', telh='+491638233713', mail='c.warin@warin-energie.de', office='office@warin-energie.de',
           person='Christoph Warin', lat='50.83367', lon='6.26860')
@@ -218,13 +218,23 @@ def sphoto(nm, alt):
     return photo(nm, alt, sizes='(max-width: 820px) 100vw, 50vw').replace(' src="', ' data-st-src="').replace(' srcset="', ' data-st-srcset="')
 
 
-SCENE = [  # Foto, Alt-Text, Überschrift, Text
-    ('industriehalle', 'Große Industriehalle mit Hallenkran und einfallendem Licht', 'Nach dem Personal kommt oft schon die Energie.', 'Warin Energie begleitet Unternehmen bei allem, was Energie kostet: Einkauf, Verträge, Rechnungen, Anträge und Effizienz.'),
-    ('produktion', 'Arbeiter an einer Maschine, Funken fliegen', 'Sie kümmern sich um Ihre Produktion.', 'Wir kümmern uns um die Energiekosten dahinter – damit Ihre Zeit, Ihr Geld und Ihr Personal im Kerngeschäft bleiben.'),
-    ('umspannwerk', 'Umspannwerk mit Leitungen unter blauem Himmel', 'Wir lesen Ihre Rechnung Zeile für Zeile.', 'Netzentgelte, Umlagen, Steuern, Messstellenbetrieb: Wir prüfen jede Position und übernehmen das Clearing mit dem Versorger.'),
-    ('strommasten', 'Strommasten im Sonnenuntergang', 'Wir kaufen ein, wenn der Markt es hergibt.', 'Ausschreibung, Tranchen oder Festpreis – nur bei zuverlässigen Versorgern und mit laufender Marktbeobachtung.'),
-    ('hochspannung', 'Hochspannungsleitung in der Abenddämmerung mit Lichtspuren', 'Ein Ansprechpartner für alles, was Energie kostet.', 'Unabhängig, aus Eschweiler, für Unternehmen aller Branchen.'),
+SCENE = [  # Foto, Alt-Text, Station, Überschrift, Text
+    ('industriehalle', 'Große Industriehalle mit Hallenkran und einfallendem Licht', '', 'Nach dem Personal kommt oft schon die Energie.', 'Woraus sich Ihr Strompreis zusammensetzt und wo wir ansetzen, zeigt der Weg einer Kilowattstunde.'),
+    ('strommasten', 'Strommasten im Sonnenuntergang', 'Markt', 'Der Preis entsteht am Markt.', 'Strom wird an der Börse gehandelt, der Preis schwankt täglich. Wann und wie Sie einkaufen, macht den größten Unterschied.'),
+    ('hochspannung', 'Hochspannungsleitung in der Abenddämmerung mit Lichtspuren', 'Übertragungsnetz', 'Unterwegs kommen Umlagen dazu.', 'Für Offshore-Wind, Kraft-Wärme-Kopplung und besondere Netznutzung. Stromkostenintensive Betriebe können einen Teil davon begrenzen lassen.'),
+    ('umspannwerk', 'Umspannwerk mit Leitungen unter blauem Himmel', 'Verteilnetz', 'Das Netz vor Ort kostet extra.', 'Netzentgelte, Messstellenbetrieb, Konzessionsabgabe: kompliziert berechnet und oft falsch abgerechnet.'),
+    ('produktion', 'Arbeiter an einer Maschine, Funken fliegen', 'Ihr Betrieb', 'Bei Ihnen zählt jede Kilowattstunde.', 'Die Menge multipliziert alle Posten davor. Jede eingesparte Kilowattstunde spart sie alle mit.'),
+    ('', '', 'Rechnung', 'Am Ende steht alles auf einer Rechnung.', 'Dazu kommen Stromsteuer und Umsatzsteuer. Wir prüfen jede Zeile, holen zurück, was Ihnen zusteht, und behalten Ihren Vertrag im Blick.'),
 ]
+BILL = [  # Station (Index in SCENE), Posten, was Warin tut, Seite
+    (1, 'Energiepreis', 'Einkauf zum richtigen Zeitpunkt', 'energiebeschaffung.html'),
+    (2, 'Umlagen', 'Begrenzung prüfen und beantragen', 'antragsmanagement.html'),
+    (3, 'Netzentgelte & Messung', 'jede Position nachgerechnet', 'rechnungspruefung.html'),
+    (4, '× Menge', 'Verbrauch und Lastspitzen senken', 'energieeffizienz.html'),
+    (5, 'Stromsteuer', 'Entlastung zurückholen', 'antragsmanagement.html'),
+    (5, 'Laufzeit & Fristen', 'Vertrag im Blick behalten', 'vertragsmanagement.html'),
+]
+
 
 LEVER_BLOCKS = [  # Formel-Term, Überschrift, Text, Leistungen
     ('menge', 'Weniger verbrauchen.', 'Die günstigste Kilowattstunde ist die, die Sie nicht brauchen. Wir untersuchen Beleuchtung, Druckluft, Pumpen, Lastspitzen, Wärme und Kälte, begleiten Energieaudit und ISO 50001 und nutzen Förderungen.', ['energieeffizienz.html', 'anlagen-contracting.html']),
@@ -236,30 +246,36 @@ LEVER_BLOCKS = [  # Formel-Term, Überschrift, Text, Leistungen
 
 
 def index():
-    n = len(SCENE)
-    frames = ''.join(f'<div class="frame f{i + 1}">{photo(nm, alt, lazy=False) if i == 0 else photo(nm, alt, late=True)}</div>' for i, (nm, alt, _, _) in enumerate(SCENE))
-    split = f'<div class="half a" aria-hidden="true"></div><div class="half b" aria-hidden="true"></div>'
+    photos = [s for s in SCENE if s[0]]
+    frames = ''.join(f'<div class="frame f{i + 1}">{photo(nm, alt, lazy=False) if i == 0 else photo(nm, alt, late=True)}</div>' for i, (nm, alt, *_) in enumerate(photos))
     caps = ''
-    for i, (_, _, h, t) in enumerate(SCENE):
+    last = len(SCENE) - 1
+    for i, (_, _, st, h, t) in enumerate(SCENE):
         tag = 'h1' if i == 0 else 'p'
         role = '' if i == 0 else ' role="heading" aria-level="2"'
         extra = ''
-        if i == n - 1:
+        if i == last:
             extra = f'''<div class="cap-person"><img src="img/christoph-warin.webp" width="292" height="350" alt="Christoph Warin" loading="lazy" decoding="async"><span><b>Christoph Warin</b>Geschäftsführer, Energiemanager für die Industrie</span></div>
-          <div class="actions"><a class="btn red big mag" href="kontakt.html?thema=rechnung">Rechnung prüfen lassen {ARROW}</a><a class="btn ghost big" href="#hebel">Leistungen ansehen</a></div>'''
+          <div class="actions"><a class="btn red big mag" href="kontakt.html?thema=rechnung">Rechnung prüfen lassen {ARROW}</a><a class="btn ghost big" href="#werkzeuge">Selbst ausprobieren</a></div>'''
         caps += f'<div class="cap c{i + 1}"><{tag} class="cap-h"{role}>{h}</{tag}><p class="cap-t">{t}</p>{extra}</div>'
+    bill = ''.join(f'<li class="bl" data-at="{at}"><i class="ph" aria-hidden="true"></i><a href="{href}" tabindex="-1"><b>{n}</b><span>{BOLT}{a}</span></a></li>' for at, n, a, href in BILL)
+    stops = [s[2] for s in SCENE if s[2]]
+    route = ''.join(f'<li class="rt-s" style="--p:{i / (len(stops) - 1) * 100:.2f}%"><i></i><span>{s}</span></li>' for i, s in enumerate(stops))
     scene = f'''
-<section class="scene" aria-label="Einstieg">
+<section class="scene" aria-label="Der Weg einer Kilowattstunde">
   <div class="stage">
     {frames}
-    {split}
     <div class="shade" aria-hidden="true"></div>
+    <div class="dim" aria-hidden="true"></div>
     <div class="caps">{caps}</div>
-    <div class="s-prog" aria-hidden="true">{''.join('<span><i></i></span>' for _ in SCENE)}</div>
+    <div class="bill" aria-hidden="true"><p class="bill-h"><b>Ihre Stromrechnung</b><span>Posten für Posten</span></p><ul>{bill}</ul></div>
+    <div class="route" aria-hidden="true"><ol>{route}</ol><span class="rt-line"><i></i></span><span class="rt-dot"></span></div>
   </div>
 </section>
 <div class="scene-static">
-  {''.join(f'<figure>{sphoto(nm, alt)}<figcaption>{"<h1>" + h + "</h1>" if i == 0 else "<b>" + h + "</b>"}<span>{t}</span></figcaption></figure>' for i, (nm, alt, h, t) in enumerate(SCENE))}
+  <figure class="st-hero">{sphoto(SCENE[0][0], SCENE[0][1])}<figcaption><h1>{SCENE[0][3]}</h1><span>{SCENE[0][4]}</span></figcaption></figure>
+  {''.join(f'<figure>{sphoto(nm, alt)}<figcaption><b>{st}: {h}</b><span>{t}</span></figcaption></figure>' for nm, alt, st, h, t in SCENE[1:5])}
+  <div class="st-bill"><b>{SCENE[5][3]}</b><span>{SCENE[5][4]}</span><ul>{''.join(f'<li><a href="{href}">{n}</a>: {a}</li>' for _, n, a, href in BILL)}</ul></div>
 </div>'''
 
     svc = {s[0]: s for s in SERVICES}
