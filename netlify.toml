@@ -1,0 +1,60 @@
+[build]
+  publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; frame-src https://www.openstreetmap.org; connect-src 'self'; form-action 'self'; base-uri 'self'; frame-ancestors 'none'"
+
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/img/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+
+# Alte Adressen der IONOS-Seite
+[[redirects]]
+  from = "/leistungen/"
+  to = "/#leistungen"
+  status = 301
+[[redirects]]
+  from = "/referenzen/"
+  to = "/referenzen.html"
+  status = 301
+[[redirects]]
+  from = "/unternehmen/"
+  to = "/unternehmen.html"
+  status = 301
+[[redirects]]
+  from = "/unsere-partner/"
+  to = "/partner.html"
+  status = 301
+[[redirects]]
+  from = "/impressum-datenschutz/"
+  to = "/impressum.html"
+  status = 301
+[[redirects]]
+  from = "/energiecheck/"
+  to = "/energieeffizienz.html"
+  status = 301
+[[redirects]]
+  from = "/sitemap/"
+  to = "/sitemap.xml"
+  status = 301
+[[redirects]]
+  from = "/app/download/*"
+  to = "/kontakt.html"
+  status = 301
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
