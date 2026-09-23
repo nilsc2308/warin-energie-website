@@ -5,7 +5,7 @@ import json, os, html as H
 OUT = os.path.dirname(os.path.abspath(__file__)) + '/'
 DOMAIN = 'https://www.warin-energie.de'
 TODAY = '2026-09-23'
-VER = '20260923-6'
+VER = '20260923-8'
 CO = dict(name='Warin Energie GmbH', brand='Warin Energie', street='Auf dem Hügel 21', zip='52249', city='Eschweiler',
           tel='0163 823 37 13', telh='+491638233713', mail='c.warin@warin-energie.de', office='office@warin-energie.de',
           person='Christoph Warin', lat='50.83367', lon='6.26860')
@@ -78,6 +78,7 @@ def head(p):
     svc_on = ' class="on"' if f in [s[0] for s in SERVICES] else ''
     groups = [('preis', 'Einkauf & Preis'), ('kosten', 'Verträge, Rechnungen, Anträge'), ('verbrauch', 'Verbrauch & Anlagen')]
     mega = ''.join(f'<div class="mg"><p class="mg-h">{n}</p><ul>' + ''.join(f'<li><a href="{s[0]}"{cur(s[0])}><b>{s[1]}</b><span>{s[5]}</span></a></li>' for s in SERVICES if s[3] == k) + '</ul></div>' for k, n in groups)
+    mega += '<div class="mg mg-tools"><p class="mg-h">Selbst ausprobieren</p><ul>' + ''.join(f'<li><a href="{t[0]}#werkzeug">{tool_icon(t[3])}<b>{t[2]}</b></a></li>' for t in TOOLS) + '</ul></div>'
     return f'''<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -182,6 +183,21 @@ def more(file):
     others.sort(key=lambda x: x[3] != s[3])
     return f'''<section class="sec tight more"><div class="wrap"><h2 class="h3">Weitere Hebel an Ihrer Energierechnung</h2><ul class="more-list">{''.join(f'<li class="reveal"><a href="{x[0]}"><span class="ml-t">{x[1]}</span><span class="ml-d">{x[5]}</span><span class="ml-k">{TERMS[x[4]]}</span>{ARROW}</a></li>' for x in others[:4])}</ul></div></section>'''
 
+
+TOOLS = [  # Seite, Frage, Werkzeug, Symbol (SVG-Pfade 32x32)
+    ('vertragsmanagement.html', 'Bis wann muss ich meinen Liefervertrag kündigen?', 'Fristen-Rechner', '<rect x="5" y="7" width="22" height="20" rx="3"/><path d="M5 13h22M11 4v6M21 4v6M12 19l3 3 6-6"/>'),
+    ('rechnungspruefung.html', 'Was steht eigentlich alles auf meiner Stromrechnung?', 'Musterrechnung zum Anklicken', '<path d="M8 4h16v24l-4-2-4 2-4-2-4 2z"/><path d="M12 10h8M12 15h8M12 20h5"/>'),
+    ('antragsmanagement.html', 'Welche Steuer kann ich mir zurückholen?', 'Antrags-Matrix', '<rect x="4" y="4" width="10" height="10" rx="2"/><rect x="18" y="4" width="10" height="10" rx="2"/><rect x="4" y="18" width="10" height="10" rx="2"/><path d="M20 23l3 3 5-6"/>'),
+    ('energieeffizienz.html', 'Brauche ich ein Energieaudit oder ISO 50001?', 'Pflichten-Check', '<path d="M4 24a12 12 0 0 1 24 0"/><path d="M16 24l6-8"/><circle cx="16" cy="24" r="2"/>'),
+    ('energiebeschaffung.html', 'Festpreis, Tranchen oder Spotmarkt?', 'Beschaffungsmodelle im Vergleich', '<path d="M3 24l6-8 5 4 6-10 4 5 5-7"/><circle cx="9" cy="16" r="2"/><circle cx="20" cy="10" r="2"/>'),
+    ('anlagen-contracting.html', 'Neue Anlage kaufen oder mieten?', 'Contracting-Waage', '<path d="M16 5v22M9 27h14M5 10h22"/><path d="M5 10l-3 8h6zM27 10l-3 8h6z"/>'),
+    ('immobilienwirtschaft.html', 'Wie viele Verträge spare ich mir bei mehreren Häusern?', 'Bündelungs-Baukasten', '<path d="M3 28V14l6-4 6 4v14zM17 28V10l6-5 6 5v18z"/><path d="M3 28h26"/>'),
+    ('mitarbeiter-tarife.html', 'Was haben meine Mitarbeitenden davon?', 'Perspektiv-Wechsel', '<circle cx="11" cy="11" r="4"/><circle cx="22" cy="13" r="3"/><path d="M3 26c0-5 4-8 8-8s8 3 8 8M19 26c0-4 2-7 6-7 3 0 4 2 4 4"/>'),
+]
+
+
+def tool_icon(p):
+    return f'<svg viewBox="0 0 32 32" aria-hidden="true">{p}</svg>'
 
 # ============================ STARTSEITE ============================
 CURVE = 'M0,300 C40,290 70,250 110,262 S170,330 210,300 S260,170 300,190 S360,260 400,230 S450,110 490,140 S560,220 600,180 S660,60 700,90 S760,170 800,150'
@@ -298,7 +314,21 @@ def index():
   </div>
 </section>'''
 
-    return scene + hebel + calc + refs + about + contact_section('home')
+    tools = f'''
+<section class="sec tools-sec" id="werkzeuge" aria-labelledby="tools-h">
+  <div class="wrap">
+    <div class="tools-head"><h2 id="tools-h" class="split">Selbst ausprobieren.</h2><p class="reveal">Acht Fragen, die uns Unternehmen oft stellen – und zu jeder ein kleines Werkzeug, mit dem Sie die Antwort für Ihren Fall sofort sehen.</p></div>
+    <ul class="tools">{''.join(f'<li class="reveal"><a href="{f}#werkzeug"><span class="tl-i">{tool_icon(ic)}</span><span class="tl-q">{q}</span><span class="tl-n">{n}</span><span class="tl-a">{ARROW}</span></a></li>' for f, q, n, ic in TOOLS)}</ul>
+  </div>
+</section>'''
+    guide = f'''
+<section class="sec tight guide-sec" aria-labelledby="guide-h">
+  <div class="wrap">
+    <div class="guide-head"><h2 id="guide-h" class="split">Aus dem Ratgeber.</h2><a class="link reveal" href="faq.html">Häufige Fragen {ARROW}</a></div>
+    <ul class="guide">{''.join(f'<li class="reveal"><a href="{a[0]}"><span class="gd-k">{BOLT}{TERMS[a[3]]}</span><b>{a[1]}</b><span class="gd-d">{a[2]}</span><span class="link">Weiterlesen {ARROW}</span></a></li>' for a in ARTICLES)}</ul>
+  </div>
+</section>'''
+    return scene + hebel + tools + calc + refs + guide + about + contact_section('home')
 
 
 def contact_section(where):
@@ -338,8 +368,9 @@ def contact_section(where):
 
 
 # ============================ LEISTUNGEN ============================
-def sec(inner, cls=''):
-    return f'<section class="sec {cls}"><div class="wrap">{inner}</div></section>'
+def sec(inner, cls='', sid=None):
+    i = f' id="{sid}"' if sid else ''
+    return f'<section class="sec {cls}"{i}><div class="wrap">{inner}</div></section>'
 
 
 def two(h, body, aside=''):
@@ -368,7 +399,7 @@ def p_beschaffung():
     body = ph('Energiebeschaffung', 'Strom und Erdgas zu bestmöglichen Marktpreisen – ausgeschrieben, verhandelt und nur bei zuverlässigen Versorgern abgeschlossen.', 'preis',
               ['Ausschreibung in enger Absprache mit Ihnen', 'Festpreis, Tranchen oder strukturierte Beschaffung', 'Auf Wunsch Naturstrom aus erneuerbaren Quellen'], 'Energiebeschaffung')
     body += sec(two('Energie ist ein Kostenblock, kein Nebenthema.', '<p>Die Energiekosten spielen in allen wirtschaftlichen Bereichen eine immer größere Rolle. Durch den weltweiten Wettbewerb stehen Unternehmen, gerade bei hohen Produktions- und Lohnkosten, unter Druck, ihre Energiekosten so gering wie möglich zu halten. Oft stehen sie hinter den Personalkosten ganz oben auf der Ausgabenseite.</p><p>Sie möchten Zeit, Geld und Personal gewinnbringend einsetzen statt in Tarifvergleiche? Sie möchten einen Beitrag zum Klimaschutz leisten und Naturstrom beziehen? Wir übernehmen den Einkauf – vom Lastgang bis zur Unterschrift.</p>'))
-    body += sec(f'<div class="sec-head"><h2 class="split">Wann kaufen? Drei Modelle im Vergleich.</h2><p class="reveal">Wählen Sie ein Modell und sehen Sie, wie es auf denselben Marktverlauf reagiert. Welches zu Ihnen passt, hängt von Ihrem Verbrauchsprofil und Ihrer Risikobereitschaft ab.</p></div>{tool}', 'gray')
+    body += sec(f'<div class="sec-head"><h2 class="split">Wann kaufen? Drei Modelle im Vergleich.</h2><p class="reveal">Wählen Sie ein Modell und sehen Sie, wie es auf denselben Marktverlauf reagiert. Welches zu Ihnen passt, hängt von Ihrem Verbrauchsprofil und Ihrer Risikobereitschaft ab.</p></div>{tool}', 'gray', 'werkzeug')
     body += sec(two('Marktbeobachtung inklusive.', '<p>Durch unsere langjährige Erfahrung in der Energiewirtschaft erkennen wir Trends und geben Ihnen frühzeitig Handlungsempfehlungen. Mit unseren Marktberichten sind Sie stets auf dem aktuellen Stand der Preisentwicklung – auch zwischen zwei Ausschreibungen.</p>' + ticks(['Analyse Ihres Lastgangs und Ihrer Verbrauchsstruktur', 'Bündelung mehrerer Standorte zu einer Ausschreibung', 'Ausschreibung und Angebotsvergleich', 'Vertragsprüfung vor Unterzeichnung', 'Laufende Marktberichte und Handlungsempfehlungen'])))
     body += more('energiebeschaffung.html') + cta('Wann läuft Ihr Liefervertrag aus?', 'Je früher wir den Markt beobachten, desto mehr Spielraum bleibt beim Einkauf.', 'Ausschreibung anfragen', 'kontakt.html?thema=beschaffung')
     return body
@@ -390,7 +421,7 @@ def p_vertrag():
 </div>'''
     body = ph('Vertragsmanagement', 'Wir legen Ihre Energielieferverträge auf Ihre Verbrauchsstruktur aus, prüfen alle Verträge und behalten Laufzeiten und Kündigungsfristen für Sie im Auge.', 'vertrag',
               ['Optimale Vertragsbedingungen schon in der Ausschreibung', 'Kein Risiko bei Produktionsschwankungen oder Kurzarbeit', 'Bestehende Verträge auf Potenzial geprüft'], 'Vertragsmanagement')
-    body += sec(f'<div class="sec-head"><h2 class="split">Drei Termine, die Sie kennen sollten.</h2><p class="reveal">Tragen Sie das Vertragsende ein. Der Rechner zeigt, bis wann gekündigt sein muss und wann die Vorbereitung beginnen sollte.</p></div>{tool}', 'gray')
+    body += sec(f'<div class="sec-head"><h2 class="split">Drei Termine, die Sie kennen sollten.</h2><p class="reveal">Tragen Sie das Vertragsende ein. Der Rechner zeigt, bis wann gekündigt sein muss und wann die Vorbereitung beginnen sollte.</p></div>{tool}', 'gray', 'werkzeug')
     body += sec(two('Das Kleingedruckte ist der teure Teil.', '<p>Mengentoleranzen, Pönalregelungen, automatische Verlängerungen: In Energielieferverträgen stecken Klauseln, die erst dann auffallen, wenn die Produktion schwankt. Wir minimieren die Risiken Ihrer Energiekosten bei Produktionsschwankungen oder Kurzarbeit und schließen Mengenbeschränkungen mit den damit verbundenen Pönalen aus.</p><p>Ebenso nehmen wir Ihre bereits abgeschlossenen Verträge genau unter die Lupe und decken Optimierungspotenziale auf.</p>' + ticks(['Vertragsbedingungen passend zu Ihrem Verbrauchsverhalten vorgeben', 'Verträge vor Unterzeichnung kontrollieren', 'Laufzeiten und Kündigungsfristen überwachen', 'Mengentoleranzen und Pönalen prüfen', 'Kommunikation mit Ihrem Versorger'])))
     body += more('vertragsmanagement.html') + cta('Auch Ihre Verträge sind bei uns in guten Händen.', 'Schicken Sie uns Ihren aktuellen Liefervertrag, wir prüfen ihn auf Fristen und Risiken.', 'Vertrag prüfen lassen', 'kontakt.html?thema=vertrag')
     return body
@@ -421,7 +452,7 @@ def p_rechnung():
 </div>'''
     body = ph('Rechnungsprüfung', 'Wir prüfen Ihre Verbrauchsabrechnungen, übernehmen das Clearing mit Ihrem Energieversorger und sorgen für eine stets korrekte Rechnungsstellung.', 'netz',
               ['Jede Position gegen Vertrag und Preisblatt', 'Clearing mit dem Versorger übernommen', 'Abrechnungen verständlich aufbereitet'], 'Rechnungsprüfung')
-    body += sec(f'<div class="inv-grid"><div class="sec-head left"><h2 class="split">Elf Zeilen, elf mögliche Fehler.</h2><p class="reveal">So ist eine Stromrechnung für Gewerbekunden aufgebaut. Tippen Sie auf eine Position: Sie sehen, wie sie berechnet wird und was wir daran prüfen.</p><p class="note reveal">Musterrechnung ohne Beträge. Aufbau und Bezeichnungen können je nach Versorger abweichen.</p></div>{tool}</div>', 'gray')
+    body += sec(f'<div class="inv-grid"><div class="sec-head left"><h2 class="split">Elf Zeilen, elf mögliche Fehler.</h2><p class="reveal">So ist eine Stromrechnung für Gewerbekunden aufgebaut. Tippen Sie auf eine Position: Sie sehen, wie sie berechnet wird und was wir daran prüfen.</p><p class="note reveal">Musterrechnung ohne Beträge. Aufbau und Bezeichnungen können je nach Versorger abweichen.</p></div>{tool}</div>', 'gray', 'werkzeug')
     body += sec(two('Prüfen kostet Zeit. Nicht prüfen kostet Geld.', '<p>Durch gesetzliche Vorschriften, mengenabhängige Sätze der Abgaben und Umlagen sowie die Komplexität der Netznutzungsentgelte ist eine Prüfung der Rechnung sehr zeitintensiv und setzt ein großes Maß an energiewirtschaftlichem Hintergrundwissen voraus.</p><p>Damit bei Ihnen ausschließlich Ihr Produkt im Vordergrund steht, prüfen wir Ihre Verbrauchsabrechnungen, geben sie frei und bereiten sie verständlich und nachvollziehbar für Sie auf.</p>'))
     body += more('rechnungspruefung.html') + cta('Legen Sie uns Ihre letzte Rechnung hin.', 'Ein PDF oder ein Foto der Rechnung genügt für den ersten Blick.', 'Rechnung senden', 'kontakt.html?thema=rechnung')
     return body
@@ -455,7 +486,7 @@ def p_antrag():
 </div>'''
     body = ph('Antragsmanagement', 'Auch bei den Steuern, Abgaben und Umlagen auf Strom und Erdgas liegt großes Potenzial. Wir holen bereits gezahlte Energiesteuern für Sie zurück.', 'steuern',
               ['Analyse aller Entlastungsmöglichkeiten', 'Unterlagen vorbereitet, Antrag gestellt', 'Erstattung geprüft, Fristen eingehalten'], 'Antragsmanagement')
-    body += sec(f'<div class="sec-head"><h2 class="split">Welche Entlastung kommt für Sie in Frage?</h2><p class="reveal">Wählen Sie Branche und Energieträger. Die Matrix zeigt, welche Anträge grundsätzlich möglich sind – und bis wann sie gestellt sein müssen.</p></div>{tool}', 'gray')
+    body += sec(f'<div class="sec-head"><h2 class="split">Welche Entlastung kommt für Sie in Frage?</h2><p class="reveal">Wählen Sie Branche und Energieträger. Die Matrix zeigt, welche Anträge grundsätzlich möglich sind – und bis wann sie gestellt sein müssen.</p></div>{tool}', 'gray', 'werkzeug')
     body += sec(two('Wir machen die Arbeit mit dem Hauptzollamt.', '<p>Durch die Analyse Ihrer Potenziale helfen wir Ihnen, bisher nicht genutzte Möglichkeiten auszuschöpfen, und arbeiten damit gegen den stetigen Anstieg der Energiekosten.</p>' + ticks(['Analyse der Voraussetzungen für alle Steuern, Abgaben und Umlagen', 'Vorbereitung der notwendigen Unterlagen', 'Antragsstellung bei der zuständigen Behörde', 'Prüfung der erhaltenen Erstattung', 'Einhaltung der gesetzlichen Fristen']) + '<p>Detaillierte Informationen zu den aktuellen Umlagen finden Sie bei den Übertragungsnetzbetreibern unter <a href="https://www.netztransparenz.de" rel="noopener" target="_blank">netztransparenz.de</a>.</p>'))
     body += more('antragsmanagement.html') + cta('Haben Sie die Entlastung für das Vorjahr schon beantragt?', 'Die Frist läuft bis zum 31. Dezember. Wir prüfen, was Ihnen zusteht.', 'Anträge prüfen lassen', 'kontakt.html?thema=antrag')
     return body
@@ -486,7 +517,7 @@ def p_effizienz():
              'Analyse Ihrer Pumpen und deren Regelung', 'Messung auf der Strom- und Fluidseite (Durchflüsse, Temperaturen, Drücke)', 'Analyse der Raumlufttechnik', 'Eigenstromerzeugung', 'Visualisierung und Steuerung des Verbrauchsverhaltens', 'Organisation von Energieeffizienz-Netzwerken', 'Einführung eines Energiemanagementsystems nach ISO 50001', 'Energieaudit nach DIN EN 16247-1']
     body = ph('Energieeffizienz', 'Wir untersuchen Ihr Unternehmen in allen Teilbereichen auf Energieeffizienz, decken gemeinsam mit Ihnen Potenziale auf und setzen sie wirtschaftlich sinnvoll um – ohne Störung Ihrer Produktion.', 'menge',
               ['Geprüfte Energiemanager', 'Energieaudit und ISO 50001', 'Förderungen und Zuschüsse genutzt'], 'Energieeffizienz')
-    body += sec(f'<div class="sec-head"><h2 class="split">Welche Pflichten gelten für Ihr Unternehmen?</h2><p class="reveal">Das Energieeffizienzgesetz knüpft seine Pflichten an den Verbrauch. Wählen Sie Ihre Größenordnung und sehen Sie, was auf Sie zukommt.</p></div>{tool}', 'gray')
+    body += sec(f'<div class="sec-head"><h2 class="split">Welche Pflichten gelten für Ihr Unternehmen?</h2><p class="reveal">Das Energieeffizienzgesetz knüpft seine Pflichten an den Verbrauch. Wählen Sie Ihre Größenordnung und sehen Sie, was auf Sie zukommt.</p></div>{tool}', 'gray', 'werkzeug')
     body += sec(two('Unser Effizienzangebot für Sie.', '<p>Wir bieten Ihnen die gesamte Palette der Energieeffizienz durch geprüfte Energiemanager und dazu alle Möglichkeiten, Förderungen und Zuschüsse für Effizienzmaßnahmen zu nutzen. Auch unsere Energieeffizienz-Netzwerke für Kommunen und Industrie bieten Ihnen viele Vorteile.</p>' + f'<ul class="cols">{"".join(f"<li>{x}</li>" for x in offer)}</ul>'))
     body += sec(two('Energieausweise für Gewerbe und Wohnen.', '<p>Ist Ihr Haus oder Ihr Gewerbeobjekt ein Energiefresser oder ein Energiesparer? Das zeigt der Energieausweis auf einen Blick. Verpflichtend ist er bei Verkauf oder Vermietung einer Immobilie, hilfreich beim Kauf und bei der Sanierung: Er liefert Hinweise auf Einsparpotenziale und konkrete Vorschläge für Sanierungsmaßnahmen.</p><p><a class="link" href="kontakt.html?thema=ausweis">Energieausweis anfragen ' + ARROW + '</a></p>'), 'tight')
     body += more('energieeffizienz.html') + cta('Wo verliert Ihr Betrieb Energie?', 'Wir beginnen mit einer Begehung und Ihren Verbrauchsdaten – danach wissen Sie, welche Maßnahme sich rechnet.', 'Effizienz-Check anfragen', 'kontakt.html?thema=effizienz')
@@ -508,7 +539,7 @@ def p_contracting():
 </div>'''
     body = ph('Anlagen-Contracting', 'Ob Heizungsanlage, BHKW, Druckluftkompressor, PV-Anlage, Kälteanlage oder Warmwasserspeicher: Wir übernehmen Planung, Investition und Installation einer neuen, klimaschonenden Anlage.', 'menge',
               ['Modernste Technik ohne eigene Investition', '15 Jahre Vollgarantie auf die verbaute Technik', 'Keine Bindung an einen Energieversorger'], 'Anlagen-Contracting')
-    body += sec(f'<div class="sec-head"><h2 class="split">Kaufen oder Contracting?</h2><p class="reveal">Beide Wege sind richtig – für unterschiedliche Unternehmen. Kreuzen Sie an, was Ihnen wichtig ist, und sehen Sie, wohin die Waage kippt.</p></div>{tool}', 'gray')
+    body += sec(f'<div class="sec-head"><h2 class="split">Kaufen oder Contracting?</h2><p class="reveal">Beide Wege sind richtig – für unterschiedliche Unternehmen. Kreuzen Sie an, was Ihnen wichtig ist, und sehen Sie, wohin die Waage kippt.</p></div>{tool}', 'gray', 'werkzeug')
     body += sec(two('Unser Angebot.', ticks(['Übernahme der gesamten Planung, Investition und Installation', 'Modernste Technik ohne eigene Investition', 'Umsetzung mit Ihrem Wunsch-Fachhandwerker oder unseren Profi-Partnern aus ganz Deutschland', '15 Jahre Vollgarantie auf die verbaute Technik', 'Fest kalkulierbare Nebenkosten', 'Alle Wartungen und Reparaturen inklusive', '24-Stunden-Notdienst an 365 Tagen im Jahr', 'Keine Bindung an einen Energieversorger', 'Überschaubare monatliche Raten', 'Für Ihren privaten Haushalt oder Ihr Gewerbe'])))
     body += more('anlagen-contracting.html') + cta('Steht bei Ihnen eine Anlage zur Erneuerung an?', 'Wir rechnen Kauf und Contracting für Ihren Fall nebeneinander.', 'Contracting anfragen', 'kontakt.html?thema=contracting')
     return body
@@ -529,7 +560,7 @@ def p_immo():
     offer = ['Beschaffung von Strom und Erdgas zu bestmöglichen Marktpreisen', 'Abschluss nur bei zuverlässigen Energieversorgungsunternehmen', 'Bündelung der Energieverbräuche Ihrer Immobilien', 'Ausschreibung und Abschluss in enger Absprache mit Ihnen', 'Anlagen-Contracting für neue Heizungsanlagen und Blockheizkraftwerke', 'Vertragsmanagement', 'Rechnungsprüfung', 'Kommunikation mit Ihrem Energieversorger', 'Kontinuierliche Marktbeobachtung', 'Wirtschaftlichkeitsberechnung bestehender Anlagen und Verträge', 'Informationen über gesetzliche Änderungen']
     body = ph('Immobilienwirtschaft', 'Um die steigenden Nebenkosten für Mehrfamilienhäuser, Wohnanlagen und Eigentümergemeinschaften abzufangen, bieten wir einen besonderen Service für Verwalter und Eigentümer.', 'preis',
               ['Wirtschaftlichkeitsgebot sicher eingehalten', 'Niedrige Nebenkosten für Ihre Mieter', 'Alle Liegenschaften in einer Hand'], 'Immobilienwirtschaft')
-    body += sec(f'<div class="sec-head"><h2 class="split">Aus vielen Verträgen wird einer.</h2><p class="reveal">Fügen Sie Ihre Liegenschaften hinzu. Links sehen Sie, was Sie heute einzeln verwalten, rechts, was davon bei uns übrig bleibt.</p></div>{tool}', 'gray')
+    body += sec(f'<div class="sec-head"><h2 class="split">Aus vielen Verträgen wird einer.</h2><p class="reveal">Fügen Sie Ihre Liegenschaften hinzu. Links sehen Sie, was Sie heute einzeln verwalten, rechts, was davon bei uns übrig bleibt.</p></div>{tool}', 'gray', 'werkzeug')
     body += sec(two('Unser Angebot für Verwaltungen.', '<p>Mit uns gewährleisten Sie stets die Einhaltung des Wirtschaftlichkeitsgebots und sorgen für niedrige Nebenkosten.</p>' + f'<ul class="cols">{"".join(f"<li>{x}</li>" for x in offer)}</ul>'))
     body += more('immobilienwirtschaft.html') + cta('Wie viele Abnahmestellen verwalten Sie?', 'Schicken Sie uns eine Liste der Liegenschaften, wir melden uns mit einem Vorschlag zur Bündelung.', 'Bündelung anfragen', 'kontakt.html?thema=immobilien')
     return body
@@ -550,7 +581,7 @@ def p_mitarbeiter():
             ('Läuft von selbst', 'Wechsel, Kündigung beim alten Versorger und Abrechnung laufen direkt zwischen Versorger und Haushalt.')]
     body = ph('Mitarbeiter-Tarife', 'Wir bieten nicht nur eine Energiekostenoptimierung für Ihr Unternehmen an, sondern auch für Ihre Mitarbeitenden – als Incentive-Modell ohne Kosten für Sie.', 'preis',
               ['Kein Aufwand für die Personalabteilung', 'Tarife namhafter Versorger', 'Für die privaten Haushalte aller Mitarbeitenden'], 'Mitarbeiter-Tarife')
-    body += sec(f'<div class="sec-head"><h2 class="split">Zwei Seiten, ein Gewinn.</h2><p class="reveal">Wechseln Sie die Perspektive.</p></div>{tool}', 'gray')
+    body += sec(f'<div class="sec-head"><h2 class="split">Zwei Seiten, ein Gewinn.</h2><p class="reveal">Wechseln Sie die Perspektive.</p></div>{tool}', 'gray', 'werkzeug')
     fl = ''.join(f'<li class="reveal"><b>{h}</b><p>{t}</p></li>' for h, t in flow)
     body += sec(f'<div class="sec-head left"><h2 class="split">So kommt der Tarif in die Haushalte.</h2></div><ol class="flow">{fl}</ol>')
     body += more('mitarbeiter-tarife.html') + cta('Das Allerbeste daran: Dem Unternehmen entstehen keine Kosten.', 'Sprechen Sie uns an, wir stellen Ihnen das Modell in einem kurzen Termin vor.', 'Modell vorstellen lassen', 'kontakt.html?thema=mitarbeiter')

@@ -26,3 +26,7 @@ Nils: „Scroll-Through eine Katastrophe, Aufteilung eine Katastrophe, Übergän
 - **Szene:** 5 Fotos, 520vh. Blenden: Blitzschnitt → Kurven-Wipe → Iris → Zoom-Durchflug. Fester Zeitplan: Text vollständig raus → Blende → nächster Text rein; Texte als ganzer Block (kein Wort-Zerlegen in der Szene). Fortschritt als fünf kleine Balken unten rechts.
 - **Navigation:** eine Zeile – Logo, „Leistungen“ mit Ausklappmenü (drei Gruppen, je Leistung Titel + Einzeiler), Referenzen, Unternehmen, Ratgeber, Kontakt, Telefon, „Rechnung prüfen lassen“. Über der Szene durchsichtig, danach weiß; taucht beim Runterscrollen ab.
 - **Startseite ohne weitere Pins:** Fünf Hebel (Formel-Begriffe links klebend, rechts je ein Abschnitt mit Links zu den Leistungen – ersetzt Kostenformel-Pin *und* Register, die doppelt waren) → Kostenhebel-Rechner → Referenzen als zwei gegenläufige Logo-Reihen → Über uns (Leitstand-Foto mit Parallax, Porträt) → Kontaktformular. Gestrichen: 3D-Walze, Blitz-Ausschnitt, Umschlag, Formel im Fuß.
+
+## 3. Fassung (23.9.2026 abends)
+
+Nils: „eigentlich echt gut“, aber die Unterseiten mit den Werkzeugen seien schwer zu finden (nur über den Fuß). Neu: Abschnitt „Selbst ausprobieren“ auf der Startseite (8 Werkzeuge als Fragen, Sprung direkt zu `#werkzeug` der Unterseite), vierte Spalte „Selbst ausprobieren“ im Leistungen-Menü, Ratgeber-Vorschau mit Link zu den häufigen Fragen. Kopfzeile bleibt nach einem Sprung sichtbar.

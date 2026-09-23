@@ -37,7 +37,7 @@
     head.classList.toggle('over', over);
     head.classList.toggle('solid', !over && y > 4);
     if (!document.body.classList.contains('menu-open') && !mega.classList.contains('open')) {
-      if (!over && y > 300 && y > lastY + 6) head.classList.add('hide');
+      if (!over && y > 300 && y > lastY + 6 && y - lastY < 400) head.classList.add('hide');
       else if (y < lastY - 6 || over || y < 300) head.classList.remove('hide');
     }
     lastY = y;
