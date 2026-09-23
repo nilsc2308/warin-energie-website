@@ -20,26 +20,31 @@
     gsap.ticker.lagSmoothing(0);
   }
 
-  // ---------- Kopf: Hebel heben ihre Leistungen hervor, Zeile 2 klappt beim Runterscrollen weg ----------
-  const head = $('#head'), row2 = $('#row2');
-  $$('.lever').forEach(b => {
-    const on = v => { row2.classList.toggle('focus', v); $$('.grp', row2).forEach(g => g.classList.toggle('hl', v && g.dataset.lever === b.dataset.lever)); b.classList.toggle('hl', v); if (v) head.classList.remove('compact'); };
-    b.addEventListener('mouseenter', () => on(true)); b.addEventListener('focus', () => on(true));
-    b.addEventListener('mouseleave', () => on(false)); b.addEventListener('blur', () => on(false));
-    b.addEventListener('click', () => { const first = $(`.grp[data-lever="${b.dataset.lever}"] a`, row2); first && first.focus(); });
-  });
+  // ---------- Kopfzeile: Leistungen-Menü, Verhalten beim Scrollen ----------
+  const head = $('#head'), mega = $('#mega'), megaBtn = $('.has-mega > button');
+  const setMega = open => { megaBtn.setAttribute('aria-expanded', open ? 'true' : 'false'); mega.classList.toggle('open', open); head.classList.toggle('mopen', open); };
+  megaBtn.addEventListener('click', () => setMega(megaBtn.getAttribute('aria-expanded') !== 'true'));
+  if (fine) { megaBtn.addEventListener('mouseenter', () => setMega(true)); head.addEventListener('mouseleave', () => setMega(false)); }
+  document.addEventListener('click', e => { if (!head.contains(e.target)) setMega(false); });
+  head.addEventListener('focusout', e => { if (!head.contains(e.relatedTarget)) setMega(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && mega.classList.contains('open')) { setMega(false); megaBtn.focus(); } });
+  const sceneEl = $('.scene');
   let lastY = scrollY;
   const onScrollHead = () => {
     const y = scrollY;
-    if (!document.body.classList.contains('menu-open')) {
-      if (y > 160 && y > lastY + 4) head.classList.add('compact');
-      else if (y < lastY - 4 || y < 160) head.classList.remove('compact');
+    const overUntil = sceneEl && root.classList.contains('js-motion') ? sceneEl.offsetHeight - innerHeight * .6 : 40;
+    const over = document.body.classList.contains('home') && y < overUntil;
+    head.classList.toggle('over', over);
+    head.classList.toggle('solid', !over && y > 4);
+    if (!document.body.classList.contains('menu-open') && !mega.classList.contains('open')) {
+      if (!over && y > 300 && y > lastY + 6) head.classList.add('hide');
+      else if (y < lastY - 6 || over || y < 300) head.classList.remove('hide');
     }
     lastY = y;
-    const sc = $('.sticky-cta'), sEnd = $('.scene') && $('.scene').offsetHeight; if (sc) sc.classList.toggle('show', y > (sEnd && root.classList.contains('js-motion') ? sEnd - innerHeight * .5 : 500));
+    const sc = $('.sticky-cta'); if (sc) sc.classList.toggle('show', y > (sceneEl && root.classList.contains('js-motion') ? sceneEl.offsetHeight - innerHeight * .5 : 500));
   };
   addEventListener('scroll', onScrollHead, { passive: true });
-
+  onScrollHead();
   // Menü (Handy)
   const menu = $('#menu'), menuBtn = $('.menu-btn');
   $$('li', menu).forEach((li, i) => li.style.setProperty('--i', i));
@@ -52,7 +57,7 @@
   };
   const openMenu = () => {
     lastFocus = document.activeElement;
-    document.body.classList.add('menu-open'); menu.classList.add('open'); head.classList.remove('compact');
+    document.body.classList.add('menu-open'); menu.classList.add('open'); head.classList.remove('hide');
     menuBtn.setAttribute('aria-expanded', 'true'); $('.lbl', menuBtn).textContent = 'Schließen';
     lenis && lenis.stop(); setTimeout(() => $('a', menu).focus(), 350);
   };
@@ -134,106 +139,72 @@
     $$('.reveal').forEach(el => gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: .15, scrollTrigger: { trigger: el, start: 'top 95%', once: true } }));
   }
 
+  // Ersatzfassung der Szene (reduzierte Bewegung): Fotos nur dann laden, wenn sie gezeigt wird
+  if (!motion) $$('img[data-st-src]').forEach(i => { i.srcset = i.dataset.stSrcset; i.src = i.dataset.stSrc; });
+  else { const st = $('.scene-static'); if (st) st.remove(); }
   // Späte Bilder (ab Bild 2 erst nach dem load-Ereignis)
-  const late = () => $$('img[data-late]').forEach(i => { if (i.dataset.src) i.src = i.dataset.src; });
+  const late = () => $$('img[data-late]').forEach(i => { if (i.dataset.srcset) i.srcset = i.dataset.srcset; if (i.dataset.src) i.src = i.dataset.src; $$('.half img').forEach(h => { if (h.dataset.srcset) h.srcset = h.dataset.srcset; if (h.dataset.src) h.src = h.dataset.src; }); });
   if (document.readyState === 'complete') late(); else addEventListener('load', late);
 
   // ================= STARTSEITE =================
+  // Szene: 5 Fotos, 4 Blenden. Zeitplan: Text raus -> Blende -> nächster Text rein. Nie zwei Texte gleichzeitig.
   const scene = $('.scene');
   if (scene && motion) {
-    const H = () => innerHeight, W = () => innerWidth;
-    const caps = $$('.cap', scene);
-    // Perforationskante für den Abriss (Zähne entlang der Mitte)
-    const teeth = (up) => { const n = 48, pts = []; for (let i = 0; i <= n; i++) { const x = i / n * 100; const y = 50 + (i % 2 ? 1.1 : -1.1); pts.push(`${x.toFixed(2)}% ${y}%`); } return up ? `polygon(0 0,100% 0,${pts.reverse().join(',')})` : `polygon(${pts.join(',')},100% 100%,0 100%)`; };
-    $('.tear.top', scene).style.clipPath = teeth(true);
-    $('.tear.bot', scene).style.clipPath = teeth(false);
-    // Kurven-Wipe: gezackte Oberkante steigt von unten auf
-    const f5 = $('.f5', scene), jag = [0, -6, 3, -9, -2, -12, 1, -7, -14, -4, -10, 0, -8];
-    const wipe = p => { const base = 116 - p * 142; const pts = jag.map((j, i) => `${(i / (jag.length - 1) * 100).toFixed(2)}% ${(base + j).toFixed(2)}%`); f5.style.clipPath = `polygon(${pts.join(',')},100% 100%,0 100%)`; };
-    wipe(0);
-    const bpFill = $('.bp-fill', scene);
-
-    const tl = gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: scene, start: 'top top', end: 'bottom bottom', scrub: .8, invalidateOnRefresh: true, onUpdate: s => gsap.set(bpFill, { scaleY: s.progress }) } });
-    const capIn = (c, at) => { tl.set(c, { visibility: 'visible', opacity: 1 }, at); tl.fromTo($$('.w', c), { yPercent: 110 }, { yPercent: 0, stagger: .015, duration: .35, ease: 'power3.out' }, at); const a = $('.actions', c); if (a) tl.fromTo(a, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .3 }, at + .2); };
-    const capOut = (c, at) => { tl.to($$('.w', c), { yPercent: -110, stagger: .008, duration: .25, ease: 'power2.in' }, at); tl.set(c, { visibility: 'hidden' }, at + .36); };
-    const bigBolt = $$('.big-bolt', scene);
-
-    // Bild 1: Blitz steht, Text läuft ein (beim Laden automatisch, danach gescrubbt raus)
-    gsap.fromTo(bigBolt, { scale: .82, opacity: 0, transformOrigin: '50% 50%' }, { scale: 1, opacity: 1, duration: 1.1, ease: 'expo.out', delay: introDelay });
-    const c1 = caps[0];
-    gsap.set(c1, { visibility: 'visible', opacity: 1 });
-    gsap.from($$('.w', c1), { yPercent: 110, duration: 1, ease: 'expo.out', stagger: .035, delay: introDelay + .15 });
-    tl.to({}, { duration: .5 });
-    capOut(c1, .5);
-    // Blende 1: Blitzschnitt – der Schirm reißt entlang der Zickzack-Linie auf
-    tl.to('.half.a', { xPercent: -62, yPercent: -12, rotation: -5, duration: 1, ease: 'power2.in' }, .85);
-    tl.to('.half.b', { xPercent: 62, yPercent: 12, rotation: 5, duration: 1, ease: 'power2.in' }, .85);
-    tl.fromTo('.f2 .inv', { scale: .9, opacity: .4 }, { scale: 1, opacity: 1, duration: 1 }, .85);
-    tl.fromTo('.tear.top .inv-row', { opacity: 0, x: -14 }, { opacity: 1, x: 0, stagger: .05, duration: .3 }, 1.4);
-    capIn(caps[1], 1.75);
-    tl.to({}, { duration: .5 }, 2.2);
-    capOut(caps[1], 2.7);
-    // Blende 2: Perforations-Abriss
-    tl.to('.perf', { scaleX: 1, duration: .35, ease: 'power2.out' }, 3.0);
-    tl.set('.perf', { opacity: 0 }, 3.4);
-    tl.to('.tear.top', { yPercent: -100, rotation: -4, transformOrigin: '0% 50%', duration: .9, ease: 'power2.in' }, 3.4);
-    tl.to('.tear.bot', { yPercent: 100, rotation: 3, transformOrigin: '100% 50%', duration: .9, ease: 'power2.in' }, 3.4);
-    tl.fromTo('.c-line', { strokeDasharray: 3000, strokeDashoffset: 3000 }, { strokeDashoffset: 0, duration: 1.3, ease: 'power1.inOut' }, 3.6);
-    tl.to('.buy', { scale: 1, stagger: .18, duration: .25, ease: 'back.out(3)' }, 4.2);
-    capIn(caps[2], 4.3);
-    tl.to({}, { duration: .5 }, 4.8);
-    capOut(caps[2], 5.1);
-    // Blende 3: Zählerwalze – Bild 3 rollt nach oben weg, Bild 4 rollt von unten nach
-    tl.fromTo('.f3', { rotationX: 0 }, { rotationX: 90, duration: 1, ease: 'power2.inOut', transformOrigin: () => `50% 50% ${-H() / 2}px` }, 5.45);
-    tl.fromTo('.f4', { rotationX: -90 }, { rotationX: 0, duration: 1, ease: 'power2.inOut', transformOrigin: () => `50% 50% ${-H() / 2}px` }, 5.45);
-    // Kachel-Montage der Referenzlogos
-    const tiles = $$('.tile', scene).sort(() => Math.random() - .5);
-    tl.fromTo(tiles, { opacity: 0, scale: .8 }, { opacity: 1, scale: 1, stagger: .05, duration: .3, ease: 'back.out(2)' }, 6.3);
-    capIn(caps[3], 6.5);
-    tl.to({}, { duration: .5 }, 7.1);
-    capOut(caps[3], 7.6);
-    // Blende 4: Kurven-Wipe – gezackte Preiskurve steigt auf
-    const wp = { p: 0 };
-    tl.to(wp, { p: 1, duration: 1.1, ease: 'power2.inOut', onUpdate: () => wipe(wp.p) }, 7.95);
-    tl.fromTo('.portrait', { scale: .7, rotation: -8 }, { scale: 1, rotation: 0, duration: 1.1, ease: 'power3.out' }, 8.4);
-    capIn(caps[4], 8.8);
-    tl.to({}, { duration: .9 }, 9.3);
+    const fr = $$('.frame', scene), caps = $$('.cap', scene), bars = $$('.s-prog i', scene);
+    const ha = $('.half.a', scene), hb = $('.half.b', scene);
+    // Die Blitz-Hälften zeigen dasselbe Foto wie Bild 1
+    [ha, hb].forEach(h => h.appendChild($('img', fr[0]).cloneNode()));
+    const jag = [0, -5, 2, -8, -2, -11, 1, -6, -13, -3, -9, 0, -7];
+    const wipe = p => { const base = 116 - p * 142; fr[2].style.clipPath = `polygon(${jag.map((j, i) => `${(i / (jag.length - 1) * 100).toFixed(2)}% ${(base + j).toFixed(2)}%`).join(',')},100% 100%,0 100%)`; };
+    const iris = p => { fr[3].style.clipPath = `circle(${(p * 78).toFixed(2)}% at 62% 48%)`; };
+    wipe(0); iris(0);
+    const T = { in: .3, out: .3, hold: .7, blend: .8 };
+    const tl = gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: scene, start: 'top top', end: 'bottom bottom', scrub: .6, invalidateOnRefresh: true,
+      onUpdate: s => { const p = s.progress * bars.length; bars.forEach((b, i) => gsap.set(b, { scaleX: Math.max(0, Math.min(1, p - i)) })); } } });
+    const capIn = (c, at) => tl.fromTo(c, { autoAlpha: 0, y: 36 }, { autoAlpha: 1, y: 0, duration: T.in, ease: 'power2.out' }, at);
+    const capOut = (c, at) => tl.to(c, { autoAlpha: 0, y: -36, duration: T.out, ease: 'power2.in' }, at);
+    const imgZoom = (f, at, d) => tl.fromTo($('img', f), { scale: 1.1 }, { scale: 1, duration: d }, at);
+    // Bild 1: Text steht beim Laden, läuft beim Scrollen raus
+    gsap.fromTo(caps[0], { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 1, ease: 'expo.out', delay: introDelay + .1 });
+    gsap.fromTo($('img', fr[0]), { scale: 1.12 }, { scale: 1.06, duration: 2.2, ease: 'power2.out', delay: introDelay });
+    let t = 0;
+    tl.to({}, { duration: .6 }, t); t += .6;
+    tl.to(caps[0], { autoAlpha: 0, y: -36, duration: T.out, ease: 'power2.in', immediateRender: false }, t); t += T.out;
+    // Blende 1: Blitzschnitt
+    tl.set([ha, hb, fr[1]], { visibility: 'visible' }, t).set(fr[0], { visibility: 'hidden' }, t);
+    tl.fromTo([$('img', ha), $('img', hb)], { scale: 1.06 }, { scale: 1.06, duration: .01 }, t);
+    tl.to(ha, { xPercent: -64, yPercent: -10, rotation: -4, duration: T.blend, ease: 'power2.in' }, t);
+    tl.to(hb, { xPercent: 64, yPercent: 10, rotation: 4, duration: T.blend, ease: 'power2.in' }, t);
+    imgZoom(fr[1], t, T.blend + T.in + T.hold + T.out);
+    t += T.blend; tl.set([ha, hb], { visibility: 'hidden' }, t);
+    capIn(caps[1], t); t += T.in + T.hold; capOut(caps[1], t); t += T.out;
+    // Blende 2: Kurven-Wipe
+    const w = { p: 0 };
+    tl.set(fr[2], { visibility: 'visible' }, t);
+    tl.to(w, { p: 1, duration: T.blend, ease: 'power2.inOut', onUpdate: () => wipe(w.p) }, t);
+    imgZoom(fr[2], t, T.blend + T.in + T.hold + T.out);
+    t += T.blend; capIn(caps[2], t); t += T.in + T.hold; capOut(caps[2], t); t += T.out;
+    // Blende 3: Iris
+    const ir = { p: 0 };
+    tl.set(fr[3], { visibility: 'visible' }, t);
+    tl.to(ir, { p: 1, duration: T.blend, ease: 'power2.inOut', onUpdate: () => iris(ir.p) }, t);
+    imgZoom(fr[3], t, T.blend + T.in + T.hold + T.out);
+    t += T.blend; capIn(caps[3], t); t += T.in + T.hold; capOut(caps[3], t); t += T.out;
+    // Blende 4: Zoom-Durchflug
+    tl.set(fr[4], { visibility: 'visible', opacity: 0 }, t);
+    tl.to($('img', fr[3]), { scale: 1.45, duration: T.blend, ease: 'power2.in' }, t);
+    tl.to(fr[4], { opacity: 1, duration: T.blend * .7, ease: 'power1.inOut' }, t + T.blend * .3);
+    tl.fromTo($('img', fr[4]), { scale: 1.2 }, { scale: 1, duration: T.blend + T.in + T.hold, ease: 'power2.out' }, t);
+    t += T.blend; capIn(caps[4], t); t += T.in;
+    tl.to({}, { duration: 1 }, t);
   }
 
-  // ---------- Kostenformel (Signature) ----------
-  const formel = $('.formel');
-  if (formel && motion) {
-    const chs = $$('.ch', formel), terms = k => $$(`.formel-big .t-${k}`, formel);
-    const all = $$('.formel-big .term', formel);
-    const tl = gsap.timeline({ defaults: { ease: 'none' }, scrollTrigger: { trigger: formel, start: 'top top', end: () => '+=' + innerHeight * 4.2, pin: '.formel-pin', scrub: .7, anticipatePin: 1, invalidateOnRefresh: true } });
-    tl.fromTo('.formel-big .formula > *', { opacity: 0, y: 30 }, { opacity: 1, y: 0, stagger: .04, duration: .5, ease: 'power3.out' }, 0);
-    let t = .9;
-    chs.forEach((ch, i) => {
-      const k = ch.dataset.term;
-      tl.set(ch, { visibility: 'visible' }, t);
-      tl.to(all, { opacity: .28, duration: .2 }, t);
-      tl.to(terms(k), { opacity: 1, color: '#d00000', duration: .3, ease: 'power2.out' }, t);
-      tl.fromTo(ch, { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: .35, ease: 'power3.out' }, t + .1);
-      const paths = $$('.ch-draw path, .ch-draw rect, .ch-draw circle', ch);
-      paths.forEach(p => { const L = (p.getTotalLength ? p.getTotalLength() : 400) + 2; gsap.set(p, { strokeDasharray: L, strokeDashoffset: L }); });
-      tl.to(paths, { strokeDashoffset: 0, duration: .5, stagger: .06 }, t + .2);
-      tl.to({}, { duration: .5 }, t + .45);
-      if (i < chs.length - 1) {
-        tl.to(ch, { opacity: 0, y: -30, duration: .25, ease: 'power2.in' }, t + .95);
-        tl.set(ch, { visibility: 'hidden' }, t + 1.2);
-        tl.to(terms(k), { color: '#1d1d1f', duration: .2 }, t + .95);
-      }
-      t += 1.25;
-    });
-    tl.to(all, { opacity: 1, duration: .3 }, t);
-  }
-
-  // ---------- Leistungs-Register: Linien ziehen sich durch ----------
-  if (motion) $$('.reg-row').forEach(r => {
-    gsap.to($('.rl', r), { scaleX: 1, ease: 'none', scrollTrigger: { trigger: r, start: 'top 92%', end: 'top 55%', scrub: .6 } });
-    gsap.fromTo($$('.r-t, .r-d, .r-k', r), { opacity: 0, x: -24 }, { opacity: 1, x: 0, stagger: .06, ease: 'none', scrollTrigger: { trigger: r, start: 'top 90%', end: 'top 60%', scrub: .6 } });
+  // ---------- Fünf Hebel: klebende Formel links markiert den Abschnitt rechts ----------
+  const stack = $('.stack');
+  if (stack) $$('.lv').forEach(lv => {
+    const li = $('.st-' + lv.dataset.term, stack);
+    if (hasGsap) ScrollTrigger.create({ trigger: lv, start: 'top 55%', end: 'bottom 55%', onToggle: s => li.classList.toggle('on', s.isActive) });
   });
-
   // ---------- Kostenhebel-Rechner ----------
   const calc = $('[data-calc]');
   if (calc) {
@@ -261,52 +232,16 @@
     }
   }
 
-  // ---------- Logo-Walze ----------
-  const walze = $('.walze-sec');
-  // Radius in Pixeln (Safari rechnet calc() in translateZ nicht)
-  const ringSize = () => $$('.ring').forEach(r => {
-    const cs = getComputedStyle(r.parentElement), w = parseFloat(cs.getPropertyValue('--w')), g = parseFloat(cs.getPropertyValue('--gap')), fs = $$('.face', r), n = fs.length;
-    r.style.setProperty('--rad', (n * (w + g) / (2 * Math.PI)).toFixed(1) + 'px');
-    fs.forEach((f, i) => f.style.setProperty('--ang', (i * 360 / n).toFixed(2) + 'deg'));
-  });
-  if (walze) { ringSize(); addEventListener('resize', ringSize); }
-  if (walze && motion) {
-    gsap.timeline({ scrollTrigger: { trigger: walze, start: 'top top', end: () => '+=' + innerHeight * 1.6, pin: '.walze-pin', scrub: .8, anticipatePin: 1 } })
-      .fromTo('.ring.r1', { rotationY: 0 }, { rotationY: -200, ease: 'none' }, 0)
-      .fromTo('.ring.r2', { rotationY: 12 }, { rotationY: 212, ease: 'none' }, 0);
+  // ---------- Referenzen: Logo-Reihen laufen mit dem Scrollen gegeneinander ----------
+  const refs = $('.refs');
+  if (refs && motion) {
+    const r1 = $('.lr.r1', refs), r2 = $('.lr.r2', refs);
+    const dist = el => Math.max(0, el.scrollWidth - innerWidth) * .55;
+    gsap.fromTo(r1, { x: 0 }, { x: () => -dist(r1), ease: 'none', scrollTrigger: { trigger: refs, start: 'top bottom', end: 'bottom top', scrub: .6, invalidateOnRefresh: true } });
+    gsap.fromTo(r2, { x: () => -dist(r2) }, { x: 0, ease: 'none', scrollTrigger: { trigger: refs, start: 'top bottom', end: 'bottom top', scrub: .6, invalidateOnRefresh: true } });
   }
-
-  // ---------- Blitz-Ausschnitt ----------
-  const cut = $('.cutout');
-  if (cut && motion) {
-    const front = $('.cut-front', cut), pre = $('.cut-pre', cut);
-    const B = [[63, 8], [54, 40.5], [78.5, 40.5], [67.5, 54.5], [33, 97], [46.5, 54.5], [24, 54.5]];
-    const hole = s => {
-      const w = front.offsetWidth, h = front.offsetHeight, size = Math.min(h * .42, w * .5) * s, cx = w / 2, cy = h * .45;
-      const pts = B.map(([x, y]) => `${(cx + (x - 51) / 100 * size).toFixed(1)}px ${(cy + (y - 52) / 100 * size).toFixed(1)}px`);
-      front.style.clipPath = `polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,${pts.join(',')},${pts[0]})`;
-    };
-    const o = { s: .9 };
-    hole(o.s);
-    gsap.timeline({ scrollTrigger: { trigger: cut, start: 'top top', end: () => '+=' + innerHeight * 1.4, pin: '.cut-pin', scrub: .7, anticipatePin: 1, invalidateOnRefresh: true, onRefresh: () => hole(o.s) } })
-      .to(pre, { opacity: 0, y: -40, duration: .35 }, 0)
-      .to(o, { s: 14, duration: 1, ease: 'power2.in', onUpdate: () => hole(o.s) }, .1)
-      .fromTo('.cut-txt > *', { opacity: 0, y: 30 }, { opacity: 1, y: 0, stagger: .06, duration: .35 }, .55)
-      .fromTo('.cut-person', { opacity: 0, x: 50 }, { opacity: 1, x: 0, duration: .35 }, .65)
-      .set(front, { visibility: 'hidden' }, 1.1);
-  }
-
-  // ---------- Umschlag öffnet sich ----------
-  $$('.envelope:not(.static)').forEach(env => {
-    if (!motion) return;
-    gsap.timeline({ scrollTrigger: { trigger: env, start: 'top 80%', end: 'top 30%', scrub: .7 } })
-      .fromTo($('.env-flap', env), { rotationX: 0 }, { rotationX: 178, duration: .45, ease: 'power2.inOut' }, 0)
-      .to($('.env-flap', env), { opacity: 0, duration: .15 }, .4)
-      .fromTo($('.env-front', env), { yPercent: 0, opacity: 1 }, { yPercent: 40, opacity: 0, duration: .45, ease: 'power2.in' }, .35)
-      .to($('.env-back', env), { opacity: 0, duration: .3 }, .55)
-      .fromTo($('.letter', env), { y: 40, scale: .96 }, { y: 0, scale: 1, duration: .6, ease: 'power3.out' }, .3);
-  });
-
+  // ---------- Über uns: Foto bewegt sich langsamer als die Seite ----------
+  if (motion && $('.about-photo img')) gsap.fromTo('.about-photo img', { yPercent: -5 }, { yPercent: 5, ease: 'none', scrollTrigger: { trigger: '.about', start: 'top bottom', end: 'bottom top', scrub: .6 } });
   // ================= KERNSEITEN =================
   // Beschaffungsmodell-Umschalter
   const model = $('[data-model]');

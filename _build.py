@@ -5,7 +5,7 @@ import json, os, html as H
 OUT = os.path.dirname(os.path.abspath(__file__)) + '/'
 DOMAIN = 'https://www.warin-energie.de'
 TODAY = '2026-09-23'
-VER = '20260923-3'
+VER = '20260923-5'
 CO = dict(name='Warin Energie GmbH', brand='Warin Energie', street='Auf dem Hügel 21', zip='52249', city='Eschweiler',
           tel='0163 823 37 13', telh='+491638233713', mail='c.warin@warin-energie.de', office='office@warin-energie.de',
           person='Christoph Warin', lat='50.83367', lon='6.26860')
@@ -17,10 +17,11 @@ ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width
 TEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.9 2z"/></svg>'
 MAIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>'
 PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>'
+CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>'
 BOLT = f'<svg class="bolt-ico" viewBox="20 5 62 95" aria-hidden="true"><polygon points="{BOLT_PTS}" fill="currentColor"/></svg>'
 
 # Die drei Hebel und die acht Leistungen: Datei, Titel, Kurztitel, Hebel, Formel-Term, Einzeiler
-LEVERS = [('preis', 'Preis'), ('kosten', 'Kosten'), ('verbrauch', 'Verbrauch')]
+LEVERS = [('preis', 'Einkauf & Preis'), ('kosten', 'Verträge & Kosten'), ('verbrauch', 'Verbrauch & Anlagen')]
 SERVICES = [
     ('energiebeschaffung.html', 'Energiebeschaffung', 'Beschaffung', 'preis', 'preis', 'Strom und Erdgas zu bestmöglichen Marktpreisen, mit Marktbeobachtung und Ausschreibung.'),
     ('immobilienwirtschaft.html', 'Immobilienwirtschaft', 'Immobilien', 'preis', 'preis', 'Niedrige Nebenkosten für Mehrfamilienhäuser, Wohnanlagen und Eigentümergemeinschaften.'),
@@ -74,10 +75,9 @@ def head(p):
     url = DOMAIN + '/' + ('' if p['file'] == 'index.html' else p['file'])
     f = p['file']
     cur = lambda x: ' aria-current="page"' if f == x or p.get('parent') == x else ''
-    svc = next((s for s in SERVICES if s[0] == f), None)
-    lever_on = svc[3] if svc else ''
-    levers = ''.join(f'<li><button type="button" class="lever{" on" if lever_on == k else ""}" data-lever="{k}" aria-controls="row2">{n}</button></li>' for k, n in LEVERS)
-    row2 = ''.join(f'<div class="grp" data-lever="{k}"><span class="grp-n">{n}</span>' + ''.join(f'<a href="{s[0]}" data-lever="{k}"{cur(s[0])}>{s[2]}</a>' for s in SERVICES if s[3] == k) + '</div>' for k, n in LEVERS)
+    svc_on = ' class="on"' if f in [s[0] for s in SERVICES] else ''
+    groups = [('preis', 'Einkauf & Preis'), ('kosten', 'Verträge, Rechnungen, Anträge'), ('verbrauch', 'Verbrauch & Anlagen')]
+    mega = ''.join(f'<div class="mg"><p class="mg-h">{n}</p><ul>' + ''.join(f'<li><a href="{s[0]}"{cur(s[0])}><b>{s[1]}</b><span>{s[5]}</span></a></li>' for s in SERVICES if s[3] == k) + '</ul></div>' for k, n in groups)
     return f'''<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -100,6 +100,7 @@ def head(p):
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" href="fonts/ibm-plex-sans-latin-standard-normal.woff2" as="font" type="font/woff2" crossorigin>
+{'<link rel="preload" as="image" href="img/industriehalle-l.webp" imagesrcset="img/industriehalle-m.webp 800w, img/industriehalle-l.webp 1400w, img/industriehalle.webp 2000w" imagesizes="100vw">' if f == 'index.html' else ''}
 <link rel="stylesheet" href="styles.css?v={VER}">
 <script type="application/ld+json">{json.dumps(ld, ensure_ascii=False)}</script>
 </head>
@@ -109,13 +110,19 @@ def head(p):
 <div class="curtain leave" aria-hidden="true"></div>
 <div class="progress" id="progress" aria-hidden="true"></div>
 <header class="head" id="head">
-  <div class="row1 wrap">
+  <div class="head-in">
     <a class="logo" href="index.html" aria-label="Warin Energie GmbH – Startseite">{LOGO}</a>
-    <nav class="nav1" aria-label="Hauptnavigation"><ul>{levers}{''.join(f'<li><a href="{a}"{cur(a)}>{t}</a></li>' for a, t in MAIN)}</ul></nav>
+    <nav class="nav" aria-label="Hauptnavigation"><ul>
+      <li class="has-mega"><button type="button"{svc_on} aria-expanded="false" aria-controls="mega">Leistungen {CHEV}</button></li>
+      <li><a href="referenzen.html"{cur('referenzen.html')}>Referenzen</a></li>
+      <li><a href="unternehmen.html"{cur('unternehmen.html')}>Unternehmen</a></li>
+      <li><a href="ratgeber.html"{cur('ratgeber.html')}>Ratgeber</a></li>
+      <li><a href="kontakt.html"{cur('kontakt.html')}>Kontakt</a></li>
+    </ul></nav>
     <div class="right"><a class="tel" href="tel:{CO['telh']}" aria-label="Anrufen: {CO['tel']}">{TEL}<span>{CO['tel']}</span></a><a class="btn red mag" href="kontakt.html?thema=rechnung">Rechnung prüfen lassen</a>
     <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu"><span class="lbl">Menü</span><span class="lines"><span></span><span></span></span></button></div>
   </div>
-  <nav class="row2" id="row2" aria-label="Leistungen"><div class="wrap">{row2}</div></nav>
+  <div class="mega" id="mega"><div class="mega-in">{mega}</div></div>
 </header>
 <div class="menu" id="menu">
   <div class="menu-in">
@@ -132,7 +139,6 @@ def foot(p):
 <div class="sticky-cta"><a class="btn red" href="kontakt.html?thema=rechnung">Rechnung prüfen lassen {ARROW}</a><a class="btn line" href="tel:{CO['telh']}" aria-label="Anrufen">{TEL}</a></div>
 <footer class="footer">
   <div class="wrap">
-    <div class="f-formula" aria-hidden="true">{formula()}</div>
     <div class="top">
       <div class="brand"><a class="logo" href="index.html" aria-label="Warin Energie GmbH – Startseite">{LOGO}</a><p>Energiekostenoptimierung für Unternehmen, von Anfang bis Ende durchdacht. Aus Eschweiler für die Region und ganz Deutschland.</p></div>
       {''.join(f'<div><h4>{n}</h4><ul>' + ''.join(f'<li><a href="{s[0]}">{s[1]}</a></li>' for s in SERVICES if s[3] == k) + '</ul></div>' for k, n in LEVERS)}
@@ -178,96 +184,80 @@ def more(file):
 
 
 # ============================ STARTSEITE ============================
-INVOICE_ROWS = [('Arbeitspreis Energie', 'preis'), ('Grundpreis', 'preis'), ('Netzentgelt Arbeitspreis', 'netz'), ('Netzentgelt Leistungspreis', 'netz'), ('Messstellenbetrieb', 'netz'),
-                ('Konzessionsabgabe', 'steuern'), ('KWKG-Umlage', 'steuern'), ('Offshore-Netzumlage', 'steuern'), ('Aufschlag besondere Netznutzung', 'steuern'), ('Stromsteuer', 'steuern'), ('Umsatzsteuer', 'steuern')]
-
-
-def invoice_svg():
-    rows = ''
-    for i, (n, k) in enumerate(INVOICE_ROWS):
-        y = 150 + i * 34
-        w = [120, 60, 150, 100, 70, 80, 60, 70, 60, 90, 110][i]
-        rows += f'<g class="inv-row" style="--i:{i}"><text x="40" y="{y}">{n}</text><rect x="{520 - w}" y="{y - 13}" width="{w}" height="14" rx="3" class="bar {k}"/></g>'
-    return f'''<svg class="inv" viewBox="0 0 560 560" role="img" aria-label="Gezeichnete Musterrechnung mit elf Positionen von Arbeitspreis bis Umsatzsteuer">
-  <rect x="0.5" y="0.5" width="559" height="559" rx="10" class="paper"/>
-  <text x="40" y="58" class="inv-h">Energierechnung</text><text x="40" y="84" class="inv-s">Muster, Abnahmestelle Gewerbe</text>
-  <line x1="40" y1="112" x2="520" y2="112" class="rule"/>{rows}
-  <line x1="40" y1="530" x2="520" y2="530" class="rule"/>
-</svg>'''
-
-
 CURVE = 'M0,300 C40,290 70,250 110,262 S170,330 210,300 S260,170 300,190 S360,260 400,230 S450,110 490,140 S560,220 600,180 S660,60 700,90 S760,170 800,150'
 
 
+def photo(name, alt, w=2000, h=1333, lazy=True, late=False, sizes='100vw', cls=''):
+    """Foto in drei Größen. late=True: erst nach dem load-Ereignis laden."""
+    srcset = f'img/{name}-m.webp 800w, img/{name}-l.webp 1400w, img/{name}.webp {w}w'
+    c = f' class="{cls}"' if cls else ''
+    if late:
+        return f'<img data-src="img/{name}-l.webp" data-srcset="{srcset}" sizes="{sizes}" width="{w}" height="{h}" alt="{alt}" data-late{c}>'
+    load = ' loading="lazy" decoding="async"' if lazy else ' fetchpriority="high"'
+    return f'<img src="img/{name}-l.webp" srcset="{srcset}" sizes="{sizes}" width="{w}" height="{h}" alt="{alt}"{load}{c}>'
+
+
+def sphoto(nm, alt):
+    """Foto der Ersatzfassung: wird nur per Skript geladen, wenn die Szene nicht läuft."""
+    return photo(nm, alt, sizes='(max-width: 820px) 100vw, 50vw').replace(' src="', ' data-st-src="').replace(' srcset="', ' data-st-srcset="')
+
+
+SCENE = [  # Foto, Alt-Text, Überschrift, Text
+    ('industriehalle', 'Große Industriehalle mit Hallenkran und einfallendem Licht', 'Nach dem Personal kommt oft schon die Energie.', 'Warin Energie begleitet Unternehmen bei allem, was Energie kostet: Einkauf, Verträge, Rechnungen, Anträge und Effizienz.'),
+    ('produktion', 'Arbeiter an einer Maschine, Funken fliegen', 'Sie kümmern sich um Ihre Produktion.', 'Wir kümmern uns um die Energiekosten dahinter – damit Ihre Zeit, Ihr Geld und Ihr Personal im Kerngeschäft bleiben.'),
+    ('umspannwerk', 'Umspannwerk mit Leitungen unter blauem Himmel', 'Wir lesen Ihre Rechnung Zeile für Zeile.', 'Netzentgelte, Umlagen, Steuern, Messstellenbetrieb: Wir prüfen jede Position und übernehmen das Clearing mit dem Versorger.'),
+    ('strommasten', 'Strommasten im Sonnenuntergang', 'Wir kaufen ein, wenn der Markt es hergibt.', 'Ausschreibung, Tranchen oder Festpreis – nur bei zuverlässigen Versorgern und mit laufender Marktbeobachtung.'),
+    ('hochspannung', 'Hochspannungsleitung in der Abenddämmerung mit Lichtspuren', 'Ein Ansprechpartner für alles, was Energie kostet.', 'Unabhängig, aus Eschweiler, für Unternehmen aller Branchen.'),
+]
+
+LEVER_BLOCKS = [  # Formel-Term, Überschrift, Text, Leistungen
+    ('menge', 'Weniger verbrauchen.', 'Die günstigste Kilowattstunde ist die, die Sie nicht brauchen. Wir untersuchen Beleuchtung, Druckluft, Pumpen, Lastspitzen, Wärme und Kälte, begleiten Energieaudit und ISO 50001 und nutzen Förderungen.', ['energieeffizienz.html', 'anlagen-contracting.html']),
+    ('preis', 'Besser einkaufen.', 'Strom und Erdgas zu bestmöglichen Marktpreisen: Wir bündeln, schreiben aus, verhandeln und behalten den Markt im Blick. Auch für Wohnungsbestände und die Haushalte Ihrer Belegschaft.', ['energiebeschaffung.html', 'immobilienwirtschaft.html', 'mitarbeiter-tarife.html']),
+    ('netz', 'Richtig abrechnen lassen.', 'Netzentgelte sind komplex und fehleranfällig. Wir prüfen jede Abrechnung gegen Vertrag und Preisblatt und klären Abweichungen direkt mit dem Versorger.', ['rechnungspruefung.html']),
+    ('steuern', 'Zurückholen, was Ihnen zusteht.', 'Stromsteuer, Energiesteuer, Besondere Ausgleichsregelung: Wir prüfen die Voraussetzungen, stellen die Anträge und halten die Fristen ein.', ['antragsmanagement.html']),
+    ('vertrag', 'Verträge, die zur Produktion passen.', 'Laufzeiten, Kündigungsfristen, Mengentoleranzen, Pönalen bei Kurzarbeit: Wir legen Verträge auf Ihren Verbrauch aus und behalten jede Frist im Blick.', ['vertragsmanagement.html']),
+]
+
+
 def index():
-    tiles = LOGOS[:12]
+    n = len(SCENE)
+    frames = ''.join(f'<div class="frame f{i + 1}">{photo(nm, alt, lazy=False) if i == 0 else photo(nm, alt, late=True)}</div>' for i, (nm, alt, _, _) in enumerate(SCENE))
+    split = f'<div class="half a" aria-hidden="true"></div><div class="half b" aria-hidden="true"></div>'
+    caps = ''
+    for i, (_, _, h, t) in enumerate(SCENE):
+        tag = 'h1' if i == 0 else 'p'
+        role = '' if i == 0 else ' role="heading" aria-level="2"'
+        extra = ''
+        if i == n - 1:
+            extra = f'''<div class="cap-person"><img src="img/christoph-warin.webp" width="292" height="350" alt="Christoph Warin" loading="lazy" decoding="async"><span><b>Christoph Warin</b>Geschäftsführer, Energiemanager für die Industrie</span></div>
+          <div class="actions"><a class="btn red big mag" href="kontakt.html?thema=rechnung">Rechnung prüfen lassen {ARROW}</a><a class="btn ghost big" href="#hebel">Leistungen ansehen</a></div>'''
+        caps += f'<div class="cap c{i + 1}"><{tag} class="cap-h"{role}>{h}</{tag}><p class="cap-t">{t}</p>{extra}</div>'
     scene = f'''
 <section class="scene" aria-label="Einstieg">
   <div class="stage">
-    <div class="frame f5">
-      <div class="f5-in">
-        <div class="portrait"><img data-src="img/christoph-warin.webp" width="292" height="350" alt="Christoph Warin, Geschäftsführer der Warin Energie GmbH" data-late></div>
-      </div>
-    </div>
-    <div class="frame f4"><div class="tiles">{''.join(f'<div class="tile">{logo_img(k, n, w, h)}</div>' for k, n, w, h in tiles)}</div></div>
-    <div class="frame f3"><svg class="curve" viewBox="0 0 800 400" preserveAspectRatio="none" aria-hidden="true"><path class="grid-l" d="M0,100H800M0,200H800M0,300H800"/><path class="c-line" d="{CURVE}"/></svg><span class="c-note">schematischer Verlauf, keine Marktdaten</span>
-      <span class="buy b1" style="--x:13.75%;--y:65.5%"></span><span class="buy b2" style="--x:37.5%;--y:47.5%"></span><span class="buy b3" style="--x:50%;--y:57.5%"></span></div>
-    <div class="frame f2">
-      <div class="tear top"><div class="f2-in">{invoice_svg()}</div></div>
-      <div class="tear bot" aria-hidden="true"><div class="f2-in">{invoice_svg()}</div></div>
-      <div class="perf" aria-hidden="true"></div>
-    </div>
-    <div class="frame f1">
-      <div class="half a"><div class="f1-in"><svg class="big-bolt" viewBox="20 5 62 95" aria-hidden="true"><polygon points="{BOLT_PTS}"/></svg></div></div>
-      <div class="half b" aria-hidden="true"><div class="f1-in"><svg class="big-bolt" viewBox="20 5 62 95"><polygon points="{BOLT_PTS}"/></svg></div></div>
-    </div>
-    <div class="caps">
-      <div class="cap c1 light"><h1 class="split">Nach dem Personal kommt oft schon die Energie.</h1><p class="split">Warin Energie begleitet Unternehmen bei allem, was Energie kostet: Einkauf, Verträge, Rechnungen, Anträge und Effizienz.</p></div>
-      <div class="cap c2 light side"><h2 class="split">Wir lesen Ihre Rechnung Zeile für Zeile.</h2><p class="split">Netzentgelte, Umlagen, Steuern, Messstellenbetrieb: Wir prüfen jede Position und übernehmen das Clearing mit dem Versorger.</p></div>
-      <div class="cap c3"><h2 class="split">Wir kaufen ein, wenn der Markt es hergibt.</h2><p class="split">Ausschreibung, Tranchen oder Festpreis: Wir beobachten den Markt laufend und schließen nur bei zuverlässigen Versorgern ab.</p></div>
-      <div class="cap c4 low"><h2 class="split">Von der Klinik bis zum Stahlbau.</h2><p class="split">Unternehmen aus Eschweiler und der ganzen Region vertrauen uns ihre Energiekosten an.</p></div>
-      <div class="cap c5 light"><h2 class="split">Ein Ansprechpartner für alles, was Energie kostet.</h2><p class="split">Christoph Warin, Geschäftsführer und Energiemanager für die Industrie.</p><div class="actions"><a class="btn white big mag" href="kontakt.html?thema=rechnung">Rechnung prüfen lassen {ARROW}</a><a class="btn ghost big" href="#formel">Leistungen ansehen</a></div></div>
-    </div>
-    <div class="s-prog" aria-hidden="true"><svg viewBox="20 5 62 95"><defs><clipPath id="bclip"><polygon points="{BOLT_PTS}"/></clipPath></defs><polygon points="{BOLT_PTS}" class="bp-bg"/><g clip-path="url(#bclip)"><rect class="bp-fill" x="20" y="5" width="62" height="95"/></g></svg></div>
+    {frames}
+    {split}
+    <div class="shade" aria-hidden="true"></div>
+    <div class="caps">{caps}</div>
+    <div class="s-prog" aria-hidden="true">{''.join('<span><i></i></span>' for _ in SCENE)}</div>
   </div>
 </section>
 <div class="scene-static">
-  <h1>Nach dem Personal kommt oft schon die Energie.</h1><p>Warin Energie begleitet Unternehmen bei allem, was Energie kostet: Einkauf, Verträge, Rechnungen, Anträge und Effizienz.</p>
-  <p><strong>Wir lesen Ihre Rechnung Zeile für Zeile.</strong> Wir prüfen jede Position und übernehmen das Clearing mit dem Versorger.</p>
-  <p><strong>Wir kaufen ein, wenn der Markt es hergibt.</strong> Wir beobachten den Markt laufend und schließen nur bei zuverlässigen Versorgern ab.</p>
-  <p><strong>Ein Ansprechpartner für alles, was Energie kostet.</strong> Christoph Warin, Geschäftsführer und Energiemanager für die Industrie.</p>
+  {''.join(f'<figure>{sphoto(nm, alt)}<figcaption>{"<h1>" + h + "</h1>" if i == 0 else "<b>" + h + "</b>"}<span>{t}</span></figcaption></figure>' for i, (nm, alt, h, t) in enumerate(SCENE))}
 </div>'''
 
-    chapters = [
-        ('menge', 'Menge', 'Die günstigste Kilowattstunde ist die, die Sie nicht brauchen.', 'Wir untersuchen Ihr Unternehmen in allen Teilbereichen auf Energieeffizienz: Beleuchtung, Druckluft, Pumpen, Lastspitzen, Wärme und Kälte. Energieaudit nach DIN EN 16247-1, Einführung von ISO 50001, Förderung und Umsetzung ohne Störung Ihrer Produktion.', 'energieeffizienz.html', 'Energieeffizienz',
-         '<svg viewBox="0 0 300 120" class="ch-draw"><path d="M0,90 L20,88 L40,60 L60,62 L80,30 L100,34 L120,70 L140,72 L160,40 L180,44 L200,86 L220,84 L240,50 L260,52 L280,88 L300,86"/><path class="cut" d="M0,58 H300"/></svg>', 'Lastgang: Spitzen kappen, Grundlast senken'),
-        ('preis', 'Energiepreis', 'Einkaufen wie ein Großabnehmer.', 'Strom und Erdgas zu bestmöglichen Marktpreisen, nur bei zuverlässigen Versorgern, auf Wunsch aus erneuerbaren Quellen. Wir bündeln, schreiben aus, verhandeln und behalten den Markt im Blick.', 'energiebeschaffung.html', 'Energiebeschaffung',
-         f'<svg viewBox="0 0 300 120" class="ch-draw"><path d="M0,80 C30,70 45,40 75,55 S120,100 150,70 S200,20 230,40 S280,70 300,30"/><circle cx="75" cy="55" r="5"/><circle cx="150" cy="70" r="5"/><circle cx="230" cy="40" r="5"/></svg>', 'Einkauf in Tranchen statt an einem Stichtag'),
-        ('netz', 'Netzentgelte', 'Netzentgelte sind komplex. Und fehleranfällig.', 'Leistungspreis, Arbeitspreis, Messstellenbetrieb, Blindarbeit: Wir prüfen Ihre Verbrauchsabrechnungen, übernehmen das Clearing mit dem Versorger und bereiten alles nachvollziehbar auf.', 'rechnungspruefung.html', 'Rechnungsprüfung',
-         '<svg viewBox="0 0 300 120" class="ch-draw"><rect x="60" y="6" width="180" height="108" rx="6"/><path d="M80,30H200M80,50H170M80,70H220M80,90H150"/><path class="cut" d="M226,64 l8,8 l16,-18"/></svg>', 'Jede Position gegen Vertrag und Netzbetreiber'),
-        ('steuern', 'Steuern & Umlagen', 'Was Sie zu viel gezahlt haben, holen wir zurück.', 'Stromsteuer, Energiesteuer, Besondere Ausgleichsregelung: Wir prüfen die Voraussetzungen, bereiten die Unterlagen vor, stellen die Anträge beim Hauptzollamt oder BAFA und achten auf jede Frist.', 'antragsmanagement.html', 'Antragsmanagement',
-         '<svg viewBox="0 0 300 120" class="ch-draw"><rect x="70" y="8" width="130" height="104" rx="6"/><path d="M88,32H182M88,52H182M88,72H150"/><circle class="cut" cx="220" cy="84" r="24"/><path class="cut" d="M208,84 l8,8 l14,-16"/></svg>', 'Anträge mit Frist bis zum 31. Dezember des Folgejahres'),
-        ('vertrag', 'Vertragsrisiko', 'Ein Vertrag, der zu Ihrer Produktion passt.', 'Laufzeiten, Kündigungsfristen, Mengentoleranzen, Pönalen bei Kurzarbeit: Wir legen Ihre Lieferverträge auf Ihre Verbrauchsstruktur aus, prüfen bestehende Verträge und behalten jede Frist im Blick.', 'vertragsmanagement.html', 'Vertragsmanagement',
-         '<svg viewBox="0 0 300 120" class="ch-draw"><rect x="80" y="14" width="140" height="100" rx="6"/><path d="M80,40H220M110,4V24M190,4V24"/><path class="cut" d="M150,58 V78 L166,88"/><circle cx="150" cy="78" r="26"/></svg>', 'Kündigungsfrist nie wieder verpassen'),
-    ]
-    formel = f'''
-<section class="formel" id="formel" aria-labelledby="formel-h">
-  <div class="formel-pin">
-    <div class="wrap">
-      <h2 id="formel-h" class="formel-h">Ihre Energiekosten sind eine Rechnung mit fünf Hebeln.</h2>
-      <div class="formel-big">{formula(cls='big')}</div>
-      <div class="chapters">
-        {''.join(f"""<article class="ch" data-term="{k}"><div class="ch-txt"><p class="ch-k">{BOLT}{kn}</p><h3>{h}</h3><p>{t}</p><a class="link" href="{href}">{ln} {ARROW}</a></div><figure class="ch-fig">{fig}<figcaption>{cap}</figcaption></figure></article>""" for k, kn, h, t, href, ln, fig, cap in chapters)}
-      </div>
-    </div>
-  </div>
-</section>'''
-
-    register = f'''
-<section class="sec register" id="leistungen" aria-labelledby="reg-h">
+    svc = {s[0]: s for s in SERVICES}
+    blocks = ''.join(f'''<article class="lv" data-term="{k}"><p class="lv-k">{BOLT}{TERMS[k]}</p><h3>{h}</h3><p>{t}</p><ul class="lv-links">{''.join(f'<li><a href="{f}">{svc[f][1]} {ARROW}</a></li>' for f in links)}</ul></article>''' for k, h, t, links in LEVER_BLOCKS)
+    stack = ''.join(f'<li class="st-{k}"><span>{TERMS[k]}</span></li>' for k in ['menge', 'preis', 'netz', 'steuern', 'vertrag'])
+    hebel = f'''
+<section class="sec hebel" id="hebel" aria-labelledby="hebel-h">
   <div class="wrap">
-    <div class="reg-head"><h2 id="reg-h" class="split">Acht Leistungen, drei Hebel.</h2><p class="lead reveal">Wir betrachten die Gesamtheit eines Unternehmens: von der Beeinflussung des Energiepreises bis zur ganzen Bandbreite der Energieeffizienz. Alles aus einer Hand, damit Sie sich auf Ihr Kerngeschäft konzentrieren können.</p></div>
-    {''.join(f"""<div class="reg-grp"><h3 class="reg-lever">{n}</h3><ul>""" + ''.join(f"""<li class="reg-row"><a href="{s[0]}"><span class="rl" aria-hidden="true"></span><span class="r-t">{s[1]}</span><span class="r-d">{s[5]}</span><span class="r-k">{TERMS[s[4]]}</span><span class="r-a">{ARROW}</span></a></li>""" for s in SERVICES if s[3] == k) + '</ul></div>' for k, n in LEVERS)}
+    <div class="hebel-head"><h2 id="hebel-h" class="split">Ihre Energiekosten sind eine Rechnung. Wir arbeiten an jedem Faktor.</h2>
+      <div class="formel-line reveal">{formula()}</div></div>
+    <div class="hebel-grid">
+      <div class="hebel-side" aria-hidden="true"><ol class="stack">{stack}</ol></div>
+      <div class="hebel-list">{blocks}</div>
+    </div>
   </div>
 </section>'''
 
@@ -275,8 +265,8 @@ def index():
 <section class="sec dark lift calc-sec" id="rechner" aria-labelledby="calc-h">
   <div class="wrap">
     <div class="calc-grid">
-      <div class="calc-intro"><h2 id="calc-h" class="split">Was ein Cent pro Kilowattstunde wert ist.</h2><p class="reveal">Rechnen Sie selbst: Jahresverbrauch mal Preisunterschied. Welcher Unterschied bei Ihnen drin ist, zeigt erst der Vergleich Ihrer Rechnung mit dem Markt.</p></div>
-      <div class="calc" data-calc>
+      <div class="calc-intro"><h2 id="calc-h" class="split">Was ein Cent pro Kilowattstunde wert ist.</h2><p class="reveal">Rechnen Sie selbst: Jahresverbrauch mal Preisunterschied. Welcher Unterschied bei Ihnen drin ist, zeigt der Vergleich Ihrer Rechnung mit dem Markt.</p></div>
+      <div class="calc reveal" data-calc>
         <fieldset><legend>Jahresverbrauch Strom</legend><div class="chips" data-k="kwh">{''.join(f'<button type="button" class="chip{" on" if v == 500000 else ""}" data-v="{v}">{l}</button>' for v, l in [(100000, '100.000 kWh'), (500000, '500.000 kWh'), (2000000, '2 Mio. kWh'), (10000000, '10 Mio. kWh')])}</div>
           <label class="own">oder eigener Wert <input type="text" inputmode="numeric" name="kwh" placeholder="z. B. 750000" autocomplete="off"> kWh</label></fieldset>
         <fieldset><legend>Preisunterschied</legend><div class="chips" data-k="ct">{''.join(f'<button type="button" class="chip{" on" if v == 1 else ""}" data-v="{v}">{l}</button>' for v, l in [(0.5, '0,5 ct/kWh'), (1, '1 ct/kWh'), (2, '2 ct/kWh'), (3, '3 ct/kWh')])}</div></fieldset>
@@ -288,48 +278,37 @@ def index():
   </div>
 </section>'''
 
-    ring1, ring2 = LOGOS[:16], LOGOS[16:]
-    walze = f'''
-<section class="walze-sec" aria-labelledby="walze-h">
-  <div class="walze-pin">
-    <div class="wrap walze-head"><h2 id="walze-h" class="split">Ein Auszug unserer Referenzen.</h2><p class="reveal">Automotive, CNC, Lebensmittel, Medizintechnik, Gesundheit, Gießereien, Papier, Verpackungen, Abfallwirtschaft, Immobilienwirtschaft: Unsere Erfahrung stammt aus Projekten in nahezu allen Branchen.</p></div>
-    <div class="walze" aria-hidden="true">
-      <div class="ring r1" style="--n:{len(ring1)}">{''.join(f'<div class="face" style="--i:{i}">{logo_img(k, n, w, h)}</div>' for i, (k, n, w, h) in enumerate(ring1))}</div>
-      <div class="ring r2" style="--n:{len(ring2)}">{''.join(f'<div class="face" style="--i:{i}">{logo_img(k, n, w, h)}</div>' for i, (k, n, w, h) in enumerate(ring2))}</div>
-    </div>
-    <p class="wrap walze-foot reveal"><a class="link" href="referenzen.html">Alle {len(LOGOS)} Referenzen ansehen {ARROW}</a></p>
-    <ul class="sr-only">{''.join(f'<li>{n}</li>' for _, n, _, _ in LOGOS)}</ul>
+    half = (len(LOGOS) + 1) // 2
+    row = lambda items: ''.join(f'<li class="lr-i">{logo_img(k, nm, w, h)}</li>' for k, nm, w, h in items)
+    refs = f'''
+<section class="sec refs" aria-labelledby="refs-h">
+  <div class="wrap refs-head"><h2 id="refs-h" class="split">Ein Auszug unserer Referenzen.</h2><p class="reveal">Von der Klinik bis zum Stahlbau: Unsere Erfahrung stammt aus Projekten in Automotive, CNC, Lebensmittel, Medizintechnik, Gesundheit, Gießereien, Papier, Verpackungen, Abfall- und Immobilienwirtschaft.</p></div>
+  <div class="logo-rows"><ul class="lr r1">{row(LOGOS[:half])}</ul><ul class="lr r2">{row(LOGOS[half:])}</ul></div>
+  <p class="wrap refs-foot"><a class="link" href="referenzen.html">Alle {len(LOGOS)} Referenzen ansehen {ARROW}</a></p>
+</section>'''
+
+    about = f'''
+<section class="about" aria-labelledby="about-h">
+  <div class="about-photo">{photo('leitstand', 'Leitstand eines Kraftwerks mit Schaltwand', sizes='(max-width: 1020px) 100vw, 50vw')}</div>
+  <div class="about-txt">
+    <h2 id="about-h" class="split">Unabhängig. Aus Eschweiler.</h2>
+    <p class="reveal">Unser Know-how und die jahrelange Erfahrung in der Energiewirtschaft und in Unternehmen aller Branchen machen uns zu einem kompetenten Partner in allen energierelevanten Fragen. Dazu kommt ein Netzwerk aus Fachleuten für Effizienz und Technik.</p>
+    <div class="about-person reveal"><img src="img/christoph-warin.webp" width="292" height="350" alt="Christoph Warin" loading="lazy" decoding="async"><span><b>Christoph Warin</b>Geschäftsführender Gesellschafter<br>Energiemanager für die Industrie<a href="tel:{CO['telh']}">{CO['tel']}</a></span></div>
+    <a class="btn white mag reveal" href="unternehmen.html">Das Unternehmen {ARROW}</a>
   </div>
 </section>'''
 
-    cutout = f'''
-<section class="cutout" aria-labelledby="cut-h">
-  <div class="cut-pin">
-    <div class="cut-back">
-      <div class="wrap cut-grid">
-        <div class="cut-txt"><h2 id="cut-h">Unabhängig. Aus Eschweiler.</h2>
-          <p>Wir sind ein unabhängiges Unternehmen mit Sitz in Eschweiler. Unser Know-how und die jahrelange Erfahrung in der Energiewirtschaft und in Unternehmen aller Branchen machen uns zu einem kompetenten Partner in allen energierelevanten Fragen.</p>
-          <p>Dazu kommt ein Netzwerk aus Fachleuten für Effizienz und Technik, vom Bauingenieur bis zum Immobiliensachverständigen.</p>
-          <a class="btn white mag" href="unternehmen.html">Das Unternehmen {ARROW}</a></div>
-        <figure class="cut-person"><img src="img/christoph-warin.webp" width="292" height="350" alt="Christoph Warin" loading="lazy" decoding="async"><figcaption><b>Christoph Warin</b><span>Geschäftsführender Gesellschafter, Energiemanager für die Industrie</span></figcaption></figure>
-      </div>
-    </div>
-    <div class="cut-front" aria-hidden="true"><p class="cut-pre">Energie für Ihren Erfolg.</p></div>
-  </div>
-</section>'''
-
-    return scene + formel + register + calc + walze + cutout + envelope_form('home')
+    return scene + hebel + calc + refs + about + contact_section('home')
 
 
-def envelope_form(where):
+def contact_section(where):
     opts = [('rechnung', 'Rechnungsprüfung'), ('beschaffung', 'Energiebeschaffung / Ausschreibung'), ('vertrag', 'Vertragsmanagement'), ('antrag', 'Antragsmanagement (Steuern & Umlagen)'),
             ('effizienz', 'Energieeffizienz / Energieaudit / ISO 50001'), ('contracting', 'Anlagen-Contracting'), ('immobilien', 'Immobilienwirtschaft'), ('mitarbeiter', 'Mitarbeiter-Tarife'), ('ausweis', 'Energieausweis'), ('sonstiges', 'Etwas anderes')]
-    h = 'h2' if where == 'home' else 'h2'
     return f'''
-<section class="sec envelope-sec" id="anfrage" aria-labelledby="env-h">
+<section class="sec contact-sec" id="anfrage" aria-labelledby="env-h">
   <div class="wrap env-grid">
     <div class="env-intro">
-      <{h} id="env-h" class="split">Schicken Sie uns Ihre letzte Rechnung.</{h}>
+      <h2 id="env-h" class="split">Schicken Sie uns Ihre letzte Rechnung.</h2>
       <p class="reveal">Eine Strom- oder Gasrechnung reicht für den ersten Blick. Wir melden uns mit einer ehrlichen Einschätzung, ob sich eine genauere Prüfung lohnt.</p>
       <ul class="env-contact reveal">
         <li>{TEL}<a href="tel:{CO['telh']}">{CO['tel']}</a></li>
@@ -337,10 +316,7 @@ def envelope_form(where):
         <li>{PIN}<span>{CO['street']}, {CO['zip']} {CO['city']}</span></li>
       </ul>
     </div>
-    <div class="envelope{" static" if where != "home" else ""}">
-      <div class="env-back" aria-hidden="true"></div>
-      <div class="letter">
-        <p class="letter-to">An<br><b>{CO['name']}</b><br>{CO['street']}<br>{CO['zip']} {CO['city']}</p>
+    <div class="letter reveal">
         <form class="form" name="anfrage" method="POST" action="danke.html" data-netlify="true" netlify-honeypot="firma-web" enctype="multipart/form-data" novalidate>
           <input type="hidden" name="form-name" value="anfrage">
           <p class="hp"><label>Nicht ausfüllen <input name="firma-web" tabindex="-1" autocomplete="off"></label></p>
@@ -356,9 +332,6 @@ def envelope_form(where):
           </div>
           <button class="btn red big mag" type="submit">Anfrage absenden {ARROW}</button>
         </form>
-      </div>
-      <div class="env-front" aria-hidden="true"></div>
-      <div class="env-flap" aria-hidden="true"></div>
     </div>
   </div>
 </section>'''
@@ -668,7 +641,7 @@ def p_faq():
 
 def p_kontakt():
     body = ph('Kontakt', 'Schreiben Sie uns, rufen Sie an oder schicken Sie gleich Ihre Rechnung mit. Wir melden uns zeitnah.', crumbs='Kontakt')
-    body += envelope_form('k')
+    body += contact_section('k')
     body += sec(f'''<div class="k-grid">
   <div class="k-data reveal"><h2 class="h3">So erreichen Sie uns</h2><p><b>{CO['name']}</b><br>{CO['street']}<br>{CO['zip']} {CO['city']}</p>
     <p>{TEL} <a href="tel:{CO['telh']}">{CO['tel']}</a> <span class="muted">(Christoph Warin, mobil)</span><br>{MAIL} <a href="mailto:{CO['mail']}">{CO['mail']}</a><br>{MAIL} <a href="mailto:{CO['office']}">{CO['office']}</a> <span class="muted">(Backoffice)</span></p></div>

@@ -1,10 +1,11 @@
-# Launch-Checkliste – Warin Energie GmbH (Stand 23.9.2026)
+# Launch-Checkliste – Warin Energie GmbH (Stand 23.9.2026, 2. Fassung)
 
 Unbeauftragter Entwurf auf Basis von www.warin-energie.de (IONOS-Baukasten). **Vor jeder Veröffentlichung unter der echten Domain: Einverständnis von Christoph Warin einholen.**
 
 ## Offene Kundenangaben (müssen vom Kunden kommen)
 - [ ] **Einverständnis** zum Neubau und zur Nutzung der Inhalte
 - [ ] **Referenzlogos (31) und Partnerlogos (5):** Freigabe, dass sie weiter als Referenz gezeigt werden dürfen
+- [ ] **Sechs Branchen-Fotos sind Unsplash-Platzhalter** (Industriehalle, Produktion, Umspannwerk, Strommasten, Hochspannung, Leitstand – Nachweis in img/BILDNACHWEIS.md). Vor dem Start durch eigene Fotos ersetzen oder bewusst behalten
 - [ ] **Porträt Christoph Warin:** Rechte bestätigen, höher aufgelöste Fassung erbitten (jetzt nur 292 × 350 px); Fotos von Ioanna Frangouli-Warin und Elisabeth Mystakidis (jetzt Initialen)
 - [ ] **Logo als Vektordatei** (SVG/PDF) – jetzt nach der Bilddatei nachgebaut
 - [ ] **Handelsregister:** HRB 30124, Amtsgericht Aachen (aus Registerauskunft northdata; Eintragungsdatum dort 25.7.2026) – bestätigen
@@ -34,20 +35,20 @@ Unbeauftragter Entwurf auf Basis von www.warin-energie.de (IONOS-Baukasten). **V
 - [x] **JS-Fehler: 0** auf allen 22 Seiten in Chromium und WebKit, je 1400 px und 390 px (jede Seite komplett durchgescrollt)
 - [x] **Horizontales Scrollen: keins** (scrollWidth = clientWidth auf allen Seiten, beide Browser, beide Größen)
 - [x] **Kaputte Bilder: 0**
-- [x] **Ladegröße Startseite bis „load“: 341 KB** Desktop und Handy (Ziel < 900 / < 500 KB), Fotos der Szene ab Bild 2 erst nach „load“
-- [x] Links: 62 interne Ziele vorhanden, externe (jsDelivr ×3, netztransparenz.de) antworten 200, alle Anker vorhanden
+- [x] **Ladegröße Startseite bis „load“: 436 KB** Desktop und Handy (Ziel < 900 / < 500 KB), gemessen per Resource Timing bis loadEventStart; Fotos 2–5 der Szene (ca. 500 KB) laden erst danach
+- [x] Links: 68 interne Ziele vorhanden, externe (jsDelivr ×3, netztransparenz.de) antworten 200, alle Anker vorhanden
 - [x] Formular automatisiert getestet: leeres Absenden → Name, E-Mail, Datenschutz markiert; falsche E-Mail → markiert; korrekt → Weiterleitung auf danke.html; `?thema=antrag` wählt das Thema vor; Anhang > 8 MB wird abgewiesen
 - [x] Rechner getestet: Kostenhebel (2 Mio. kWh × 2 ct × 3 Jahre = 40.000 €/Jahr, 120.000 €), Fristen (Ende 31.12.2027, 3 Monate → Kündigung bis 30.9.2027), Pflichten (800 MWh → keine Pflicht; 3.000 → Pläne + Abwärme; 9.000 → + Managementsystem; Nicht-KMU 3.000 → + Audit), Matrix, Rechnung, Waage
 - [x] Netlify-Forms-fertig (data-netlify, Honeypot, multipart für Anhang). Auf GitHub Pages wird das Formular nicht verschickt, sondern führt nur zur Danke-Seite
 - [x] `netlify.toml` mit Sicherheits-Headern (CSP, HSTS, X-Frame-Options …) und Weiterleitungen der alten Adressen (/leistungen/, /referenzen/, /unternehmen/, /unsere-partner/, /impressum-datenschutz/, /energiecheck/, /sitemap/, /app/download/*)
-- [x] CSS/JS mit Versionsnummer (`?v=20260923-3`)
-- [ ] **3D-Logo-Walze im echten Safari/iPhone ansehen** – Playwrights WebKit zeichnet 3D-Transformationen grundsätzlich flach (auch ein Minimal-Testring), Chromium zeigt sie korrekt
+- [x] CSS/JS mit Versionsnummer (`?v=20260923-5`)
+- [x] 2. Fassung: Szene 520vh statt 700vh, sonst kein festhängender Abschnitt mehr; Texte der Szene in 25 Schritten (Desktop) und 22 Schritten (Handy) geprüft – nie zwei Texte gleichzeitig
 - [ ] Lighthouse-Messung auf dem echten Hosting (mit Kompression)
 
 ## Barrierefreiheit
-- [x] Reduzierte Bewegung in drei Stufen: Szene wird zu statischem Textblock, Formel-Kapitel stehen untereinander, Walze wird Logo-Raster, Ausschnitt und Umschlag entfallen; Reveals als 150-ms-Blende; Fokus-Ringe und Hover bleiben
-- [x] Alt-Texte: 0 Bilder ohne alt; Logos der Walze zusätzlich als Liste für Screenreader
-- [x] Tastatur: Skip-Link, Fokus-Ringe, Menü mit Fokusfalle und Escape, Tabs mit Pfeiltasten, Rechnungszeilen und Chips als Buttons mit aria-pressed/aria-expanded
+- [x] Reduzierte Bewegung in drei Stufen: Szene wird zu einer Fotoreihe mit Bildunterschriften (Fotos laden nur dann), Logo-Reihen stehen als Raster, kein Parallax; Reveals als 150-ms-Blende; Fokus-Ringe und Hover bleiben
+- [x] Alt-Texte: 0 Bilder ohne alt; Logos mit Firmennamen als Alt-Text
+- [x] Tastatur: Skip-Link, Fokus-Ringe, Menü mit Fokusfalle und Escape, Tabs mit Pfeiltasten, Leistungen-Menü per Klick/Tastatur und Escape, Rechnungszeilen und Chips als Buttons mit aria-pressed/aria-expanded
 - [x] Kontraste: Rot #d00000 auf Weiß 5,9 : 1, Grau #6e6e73 auf Weiß 5,0 : 1
 - [x] Startseite hat zwei h1 (Szene und statische Fassung) – je nach Modus ist nur eine sichtbar
 

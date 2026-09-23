@@ -14,3 +14,15 @@ Design-Read: Redesign einer IONOS-Baukasten-Seite für eine Energie-Beratung, di
 10. **Regler:** Dichte **6** (kaufmännisches Publikum liest gern Fakten; Unterseiten kurz und dicht statt luftig), Kontrast **8** (Weiß/Graphit hart gegeneinander, Rot als einzige Farbe), Bewegung **8** Startseite, 5 Kernseiten, 1 Impressum/Datenschutz.
 
 **Bewusst NICHT übernommen:** Pill, Glasleiste, rotes Vollbild-Overlay, linke Leiste, Logo mittig; Text-Maske, Lamellen, Zoom-Dive+Blitz, 3D-Karte, Iris, Streifen-Vorhang, Flüssig-Wipe, Rautenraster, Spiegel-Split, Umblättern, Pixel, Rotations-Kreuzblende, Rollo, Tiefen-/Fenster-/Schärfe-/Scan-Blende (einzige Wiederholung: Kachel-Montage als Aufbau der Logo-Wand); Energiefluss, Live-Zähler, Horizontal-Panels, stapelnde Karten, gescrubbtes Zitat, Parallax-Kolonnen, Split-CTA, Zeitstrahl, Bento, Zahlen-Kacheln mit Countern, schrumpfende Zahl, Akkordeon, Uhr, Terminkacheln, große Telefonnummer, Marquee, Wort-Wolke, Paket-Wähler, Sommer/Winter, fliegende Kacheln, Kreisdiagramm, Donut, Chat-Anfrage, Anfrage-Zettel, Vorher/Nachher, Assistent, Vergleichstabelle, Filter-Galerie, klickbares Foto, Entscheidungsweiche, Schieberegler, Quiz, Checkliste, Stempel, Schubladen. AI-Tells (drei gleiche Karten, nummerierte Eyebrows, Schritt-Etiketten, Pills auf Fotos, Deko-Textstreifen, Punkt-Ketten, #000, Neon, Gradient-Text, Füllverben, erfundene Zahlen, Custom-Cursor, Scroll-Hinweis) sind ausgeschlossen.
+
+
+---
+
+## 2. Fassung (23.9.2026 nachmittags) – nach Nils' Kritik
+
+Nils: „Scroll-Through eine Katastrophe, Aufteilung eine Katastrophe, Übergänge verbuggt, Wörter ineinander, die Leiste oben macht keinen Sinn, langweilig und gleichzeitig anstrengend.“ Änderungen:
+
+- **Fotos:** Auf Nils' Entscheidung Branchen-Fotos von Unsplash als Platzhalter (Industriehalle, Produktion, Umspannwerk, Strommasten, Hochspannung, Leitstand). Die grafischen Szenenbilder (roter Blitz, gezeichnete Rechnung, Kurve, Logo-Kacheln) sind gestrichen.
+- **Szene:** 5 Fotos, 520vh. Blenden: Blitzschnitt → Kurven-Wipe → Iris → Zoom-Durchflug. Fester Zeitplan: Text vollständig raus → Blende → nächster Text rein; Texte als ganzer Block (kein Wort-Zerlegen in der Szene). Fortschritt als fünf kleine Balken unten rechts.
+- **Navigation:** eine Zeile – Logo, „Leistungen“ mit Ausklappmenü (drei Gruppen, je Leistung Titel + Einzeiler), Referenzen, Unternehmen, Ratgeber, Kontakt, Telefon, „Rechnung prüfen lassen“. Über der Szene durchsichtig, danach weiß; taucht beim Runterscrollen ab.
+- **Startseite ohne weitere Pins:** Fünf Hebel (Formel-Begriffe links klebend, rechts je ein Abschnitt mit Links zu den Leistungen – ersetzt Kostenformel-Pin *und* Register, die doppelt waren) → Kostenhebel-Rechner → Referenzen als zwei gegenläufige Logo-Reihen → Über uns (Leitstand-Foto mit Parallax, Porträt) → Kontaktformular. Gestrichen: 3D-Walze, Blitz-Ausschnitt, Umschlag, Formel im Fuß.
