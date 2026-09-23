@@ -5,7 +5,7 @@ import json, os, html as H
 OUT = os.path.dirname(os.path.abspath(__file__)) + '/'
 DOMAIN = 'https://www.warin-energie.de'
 TODAY = '2026-09-23'
-VER = '20260923-10'
+VER = '20260923-12'
 CO = dict(name='Warin Energie GmbH', brand='Warin Energie', street='Auf dem Hügel 21', zip='52249', city='Eschweiler',
           tel='0163 823 37 13', telh='+491638233713', mail='c.warin@warin-energie.de', office='office@warin-energie.de',
           person='Christoph Warin', lat='50.83367', lon='6.26860')
@@ -23,13 +23,15 @@ BOLT = f'<svg class="bolt-ico" viewBox="20 5 62 95" aria-hidden="true"><polygon 
 # Die drei Hebel und die acht Leistungen: Datei, Titel, Kurztitel, Hebel, Formel-Term, Einzeiler
 LEVERS = [('preis', 'Einkauf & Preis'), ('kosten', 'Verträge & Kosten'), ('verbrauch', 'Verbrauch & Anlagen')]
 SERVICES = [
-    ('energiebeschaffung.html', 'Energiebeschaffung', 'Beschaffung', 'preis', 'preis', 'Strom und Erdgas zu bestmöglichen Marktpreisen, mit Marktbeobachtung und Ausschreibung.'),
+    ('energiebeschaffung.html', 'Energiebeschaffung', 'Beschaffung', 'preis', 'preis', 'Strom und Erdgas zu bestmöglichen Marktpreisen, ausgeschrieben und verhandelt.'),
+    ('marktbeobachtung.html', 'Marktbeobachtung', 'Marktbeobachtung', 'preis', 'preis', 'Trends erkennen, Marktberichte lesen, rechtzeitig handeln.'),
     ('immobilienwirtschaft.html', 'Immobilienwirtschaft', 'Immobilien', 'preis', 'preis', 'Niedrige Nebenkosten für Mehrfamilienhäuser, Wohnanlagen und Eigentümergemeinschaften.'),
     ('mitarbeiter-tarife.html', 'Mitarbeiter-Tarife', 'Mitarbeiter-Tarife', 'preis', 'preis', 'Gute Energietarife für die Haushalte Ihrer Belegschaft, ohne Kosten für das Unternehmen.'),
     ('vertragsmanagement.html', 'Vertragsmanagement', 'Verträge', 'kosten', 'vertrag', 'Laufzeiten, Kündigungsfristen, Mengentoleranzen und Pönalen im Griff.'),
     ('rechnungspruefung.html', 'Rechnungsprüfung', 'Rechnungsprüfung', 'kosten', 'netz', 'Jede Abrechnung geprüft, das Clearing mit dem Versorger übernommen.'),
     ('antragsmanagement.html', 'Antragsmanagement', 'Anträge', 'kosten', 'steuern', 'Entlastung bei Strom- und Energiesteuer beantragen, Fristen einhalten.'),
-    ('energieeffizienz.html', 'Energieeffizienz', 'Effizienz', 'verbrauch', 'menge', 'Energieaudit, ISO 50001, Netzwerke, Förderung und Energieausweise.'),
+    ('energieeffizienz.html', 'Energieeffizienz', 'Effizienz', 'verbrauch', 'menge', 'Energieaudit, ISO 50001, Effizienz-Netzwerke und Förderung.'),
+    ('energieausweis.html', 'Energieausweise', 'Energieausweise', 'verbrauch', 'menge', 'Bedarfs- oder Verbrauchsausweis für Wohn- und Gewerbegebäude.'),
     ('anlagen-contracting.html', 'Anlagen-Contracting', 'Contracting', 'verbrauch', 'menge', 'Neue Heizung, BHKW oder Druckluft ohne eigene Investition.'),
 ]
 TERMS = {'menge': 'Menge', 'preis': 'Energiepreis', 'netz': 'Netzentgelte', 'steuern': 'Steuern & Umlagen', 'vertrag': 'Vertragsrisiko'}
@@ -189,6 +191,8 @@ TOOLS = [  # Seite, Frage, Werkzeug, Symbol (SVG-Pfade 32x32)
     ('rechnungspruefung.html', 'Was steht eigentlich alles auf meiner Stromrechnung?', 'Musterrechnung zum Anklicken', '<path d="M8 4h16v24l-4-2-4 2-4-2-4 2z"/><path d="M12 10h8M12 15h8M12 20h5"/>'),
     ('antragsmanagement.html', 'Welche Steuer kann ich mir zurückholen?', 'Antrags-Matrix', '<rect x="4" y="4" width="10" height="10" rx="2"/><rect x="18" y="4" width="10" height="10" rx="2"/><rect x="4" y="18" width="10" height="10" rx="2"/><path d="M20 23l3 3 5-6"/>'),
     ('energieeffizienz.html', 'Brauche ich ein Energieaudit oder ISO 50001?', 'Pflichten-Check', '<path d="M4 24a12 12 0 0 1 24 0"/><path d="M16 24l6-8"/><circle cx="16" cy="24" r="2"/>'),
+    ('marktbeobachtung.html', 'Was bewegt eigentlich den Strompreis?', 'Preistreiber am Markt', '<path d="M16 28V6M8 14l8-8 8 8"/><path d="M4 22h6M22 22h6"/>'),
+    ('energieausweis.html', 'Welchen Energieausweis brauche ich?', 'Ausweis-Check', '<path d="M6 28V13L16 5l10 8v15z"/><path d="M11 22h10M11 18h6"/>'),
     ('energiebeschaffung.html', 'Festpreis, Tranchen oder Spotmarkt?', 'Beschaffungsmodelle im Vergleich', '<path d="M3 24l6-8 5 4 6-10 4 5 5-7"/><circle cx="9" cy="16" r="2"/><circle cx="20" cy="10" r="2"/>'),
     ('anlagen-contracting.html', 'Neue Anlage kaufen oder mieten?', 'Contracting-Waage', '<path d="M16 5v22M9 27h14M5 10h22"/><path d="M5 10l-3 8h6zM27 10l-3 8h6z"/>'),
     ('immobilienwirtschaft.html', 'Wie viele Verträge spare ich mir bei mehreren Häusern?', 'Bündelungs-Baukasten', '<path d="M3 28V14l6-4 6 4v14zM17 28V10l6-5 6 5v18z"/><path d="M3 28h26"/>'),
@@ -237,8 +241,8 @@ BILL = [  # Station (Index in SCENE), Posten, was Warin tut, Seite
 
 
 LEVER_BLOCKS = [  # Formel-Term, Überschrift, Text, Leistungen
-    ('menge', 'Weniger verbrauchen.', 'Die günstigste Kilowattstunde ist die, die Sie nicht brauchen. Wir untersuchen Beleuchtung, Druckluft, Pumpen, Lastspitzen, Wärme und Kälte, begleiten Energieaudit und ISO 50001 und nutzen Förderungen.', ['energieeffizienz.html', 'anlagen-contracting.html']),
-    ('preis', 'Besser einkaufen.', 'Strom und Erdgas zu bestmöglichen Marktpreisen: Wir bündeln, schreiben aus, verhandeln und behalten den Markt im Blick. Auch für Wohnungsbestände und die Haushalte Ihrer Belegschaft.', ['energiebeschaffung.html', 'immobilienwirtschaft.html', 'mitarbeiter-tarife.html']),
+    ('menge', 'Weniger verbrauchen.', 'Die günstigste Kilowattstunde ist die, die Sie nicht brauchen. Wir untersuchen Beleuchtung, Druckluft, Pumpen, Lastspitzen, Wärme und Kälte, begleiten Energieaudit und ISO 50001 und nutzen Förderungen.', ['energieeffizienz.html', 'energieausweis.html', 'anlagen-contracting.html']),
+    ('preis', 'Besser einkaufen.', 'Strom und Erdgas zu bestmöglichen Marktpreisen: Wir bündeln, schreiben aus, verhandeln und behalten den Markt im Blick. Auch für Wohnungsbestände und die Haushalte Ihrer Belegschaft.', ['energiebeschaffung.html', 'marktbeobachtung.html', 'immobilienwirtschaft.html', 'mitarbeiter-tarife.html']),
     ('netz', 'Richtig abrechnen lassen.', 'Netzentgelte sind komplex und fehleranfällig. Wir prüfen jede Abrechnung gegen Vertrag und Preisblatt und klären Abweichungen direkt mit dem Versorger.', ['rechnungspruefung.html']),
     ('steuern', 'Zurückholen, was Ihnen zusteht.', 'Stromsteuer, Energiesteuer, Besondere Ausgleichsregelung: Wir prüfen die Voraussetzungen, stellen die Anträge und halten die Fristen ein.', ['antragsmanagement.html']),
     ('vertrag', 'Verträge, die zur Produktion passen.', 'Laufzeiten, Kündigungsfristen, Mengentoleranzen, Pönalen bei Kurzarbeit: Wir legen Verträge auf Ihren Verbrauch aus und behalten jede Frist im Blick.', ['vertragsmanagement.html']),
@@ -333,7 +337,7 @@ def index():
     tools = f'''
 <section class="sec tools-sec" id="werkzeuge" aria-labelledby="tools-h">
   <div class="wrap">
-    <div class="tools-head"><h2 id="tools-h" class="split">Selbst ausprobieren.</h2><p class="reveal">Acht Fragen, die uns Unternehmen oft stellen – und zu jeder ein kleines Werkzeug, mit dem Sie die Antwort für Ihren Fall sofort sehen.</p></div>
+    <div class="tools-head"><h2 id="tools-h" class="split">Selbst ausprobieren.</h2><p class="reveal">Zehn Fragen, die uns Unternehmen oft stellen – und zu jeder ein kleines Werkzeug, mit dem Sie die Antwort für Ihren Fall sofort sehen.</p></div>
     <ul class="tools">{''.join(f'<li class="reveal"><a href="{f}#werkzeug"><span class="tl-i">{tool_icon(ic)}</span><span class="tl-q">{q}</span><span class="tl-n">{n}</span><span class="tl-a">{ARROW}</span></a></li>' for f, q, n, ic in TOOLS)}</ul>
   </div>
 </section>'''
@@ -535,7 +539,7 @@ def p_effizienz():
               ['Geprüfte Energiemanager', 'Energieaudit und ISO 50001', 'Förderungen und Zuschüsse genutzt'], 'Energieeffizienz')
     body += sec(f'<div class="sec-head"><h2 class="split">Welche Pflichten gelten für Ihr Unternehmen?</h2><p class="reveal">Das Energieeffizienzgesetz knüpft seine Pflichten an den Verbrauch. Wählen Sie Ihre Größenordnung und sehen Sie, was auf Sie zukommt.</p></div>{tool}', 'gray', 'werkzeug')
     body += sec(two('Unser Effizienzangebot für Sie.', '<p>Wir bieten Ihnen die gesamte Palette der Energieeffizienz durch geprüfte Energiemanager und dazu alle Möglichkeiten, Förderungen und Zuschüsse für Effizienzmaßnahmen zu nutzen. Auch unsere Energieeffizienz-Netzwerke für Kommunen und Industrie bieten Ihnen viele Vorteile.</p>' + f'<ul class="cols">{"".join(f"<li>{x}</li>" for x in offer)}</ul>'))
-    body += sec(two('Energieausweise für Gewerbe und Wohnen.', '<p>Ist Ihr Haus oder Ihr Gewerbeobjekt ein Energiefresser oder ein Energiesparer? Das zeigt der Energieausweis auf einen Blick. Verpflichtend ist er bei Verkauf oder Vermietung einer Immobilie, hilfreich beim Kauf und bei der Sanierung: Er liefert Hinweise auf Einsparpotenziale und konkrete Vorschläge für Sanierungsmaßnahmen.</p><p><a class="link" href="kontakt.html?thema=ausweis">Energieausweis anfragen ' + ARROW + '</a></p>'), 'tight')
+    body += sec(two('Energieausweise für Gewerbe und Wohnen.', '<p>Ob Verkauf, Vermietung oder Aushang im Gebäude: Welchen Ausweis Sie brauchen und bis wann, zeigt unser Ausweis-Check auf der eigenen Seite.</p><p><a class="link" href="energieausweis.html">Zu den Energieausweisen ' + ARROW + '</a></p>'), 'tight')
     body += more('energieeffizienz.html') + cta('Wo verliert Ihr Betrieb Energie?', 'Wir beginnen mit einer Begehung und Ihren Verbrauchsdaten – danach wissen Sie, welche Maßnahme sich rechnet.', 'Effizienz-Check anfragen', 'kontakt.html?thema=effizienz')
     return body
 
@@ -601,6 +605,62 @@ def p_mitarbeiter():
     fl = ''.join(f'<li class="reveal"><b>{h}</b><p>{t}</p></li>' for h, t in flow)
     body += sec(f'<div class="sec-head left"><h2 class="split">So kommt der Tarif in die Haushalte.</h2></div><ol class="flow">{fl}</ol>')
     body += more('mitarbeiter-tarife.html') + cta('Das Allerbeste daran: Dem Unternehmen entstehen keine Kosten.', 'Sprechen Sie uns an, wir stellen Ihnen das Modell in einem kurzen Termin vor.', 'Modell vorstellen lassen', 'kontakt.html?thema=mitarbeiter')
+    return body
+
+
+DRIVERS = [  # Schlüssel, Ereignis, Richtung (+1 teurer, -1 günstiger), Erklärung
+    ('kalt', 'Kalter Winter', 1, 'Mehr Heiz- und Strombedarf: Teurere Kraftwerke müssen zusätzlich ans Netz.'),
+    ('wind', 'Windreiche Woche', -1, 'Windstrom kostet in der Erzeugung fast nichts und verdrängt teure Kraftwerke aus der Einsatzreihenfolge.'),
+    ('sonne', 'Sonniger Mittag', -1, 'Viel Solarstrom drückt die Preise zur Mittagszeit, manchmal sogar unter null.'),
+    ('gas', 'Erdgas wird knapp', 1, 'Gaskraftwerke bestimmen oft den Preis. Wird Gas teurer, zieht der Strompreis mit.'),
+    ('co2', 'CO₂-Zertifikate teurer', 1, 'Kohle- und Gaskraftwerke brauchen Zertifikate. Steigt deren Preis, steigen ihre Kosten.'),
+    ('revision', 'Kraftwerke in Revision', 1, 'Fehlen Kraftwerke, rücken teurere Anlagen nach.'),
+]
+
+
+def p_markt():
+    chips = ''.join(f'<button type="button" class="chip" data-d="{k}" data-v="{v}" aria-pressed="false">{n}</button>' for k, n, v, _ in DRIVERS)
+    expl = ''.join(f'<li data-d="{k}" hidden><b>{n}</b><span>{t}</span></li>' for k, n, _, t in DRIVERS)
+    tool = f'''
+<div class="drv reveal" data-drivers>
+  <fieldset class="drv-ctl"><legend>Was passiert gerade am Markt? (mehrere möglich)</legend><div class="chips">{chips}</div></fieldset>
+  <div class="drv-out" aria-live="polite">
+    <div class="drv-gauge" aria-hidden="true"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54"/><g class="drv-arrow"><path d="M60 92V30M40 50l20-20 20 20"/></g></svg></div>
+    <p class="drv-res"><b id="drv-t">Wählen Sie ein Ereignis</b><span id="drv-s">Die Grafik zeigt, in welche Richtung der Großhandelspreis tendiert.</span></p>
+    <ul class="drv-list">{expl}</ul>
+  </div>
+  <p class="note">Schematische Darstellung zur Erklärung, keine Prognose. Wie stark ein Ereignis wirkt, hängt immer vom Zusammenspiel aller Faktoren ab.</p>
+</div>'''
+    body = ph('Marktbeobachtung', 'Durch unsere langjährige Erfahrung in der Energiewirtschaft erkennen wir Trends und geben Ihnen frühzeitig Handlungsempfehlungen. Mit unseren Marktberichten sind Sie stets auf dem aktuellen Stand der Preisentwicklung.', 'preis',
+              ['Laufende Beobachtung von Strom- und Gasmarkt', 'Marktberichte zur Preisentwicklung', 'Handlungsempfehlungen vor dem Einkauf'], 'Marktbeobachtung')
+    body += sec(f'<div class="sec-head"><h2 class="split">Was bewegt den Strompreis?</h2><p class="reveal">Der Großhandelspreis ändert sich Stunde für Stunde. Wählen Sie ein paar Ereignisse und sehen Sie, in welche Richtung sie den Preis schieben.</p></div>{tool}', 'gray', 'werkzeug')
+    body += sec(two('Der richtige Moment ist bares Geld.', '<p>Strom und Erdgas werden an der Börse gehandelt. Wer seinen Bedarf für die nächsten Jahre einkauft, legt sich an einem bestimmten Tag auf einen Preis fest. Ob dieser Tag gut gewählt war, entscheidet über Jahre hinweg über Ihre Energiekosten.</p><p>Wir beobachten die Märkte für Sie, ordnen Entwicklungen ein und melden uns, wenn ein günstiger Zeitpunkt für die Ausschreibung oder eine weitere Tranche kommt.</p>' + ticks(['Beobachtung der Terminmärkte für Strom und Erdgas', 'Regelmäßige Marktberichte zur Preisentwicklung', 'Frühzeitige Handlungsempfehlungen vor Vertragsende', 'Einordnung gesetzlicher Änderungen bei Umlagen und Steuern', 'Direkter Übergang in Ausschreibung und Einkauf']) + '<p><a class="link" href="energiebeschaffung.html">Zur Energiebeschaffung ' + ARROW + '</a></p>'))
+    body += more('marktbeobachtung.html') + cta('Wann läuft Ihr nächster Einkauf an?', 'Wir sagen Ihnen, was der Markt gerade macht – und ob sich Warten lohnt.', 'Marktbericht anfragen', 'kontakt.html?thema=beschaffung')
+    return body
+
+
+def p_ausweis():
+    tool = '''
+<div class="aw reveal" data-ausweis>
+  <div class="aw-in">
+    <fieldset><legend>Um welches Gebäude geht es?</legend><div class="chips" data-g="art"><button type="button" class="chip on" data-v="wohn" aria-pressed="true">Wohngebäude</button><button type="button" class="chip" data-v="nwg" aria-pressed="false">Gewerbe, Büro, Halle</button></div></fieldset>
+    <fieldset><legend>Wofür brauchen Sie den Ausweis?</legend><div class="chips" data-g="anlass"><button type="button" class="chip on" data-v="verkauf" aria-pressed="true">Verkauf</button><button type="button" class="chip" data-v="miete" aria-pressed="false">Vermietung</button><button type="button" class="chip" data-v="neubau" aria-pressed="false">Neubau / große Sanierung</button><button type="button" class="chip" data-v="aushang" aria-pressed="false">Aushang im Gebäude</button></div></fieldset>
+    <fieldset class="aw-wohn"><legend>Wohnungen im Gebäude</legend><div class="chips" data-g="we"><button type="button" class="chip on" data-v="klein" aria-pressed="true">bis 4</button><button type="button" class="chip" data-v="gross" aria-pressed="false">5 oder mehr</button></div></fieldset>
+    <fieldset class="aw-wohn"><legend>Bauantrag gestellt</legend><div class="chips" data-g="bj"><button type="button" class="chip on" data-v="alt" aria-pressed="true">vor dem 1.11.1977</button><button type="button" class="chip" data-v="neu" aria-pressed="false">danach</button></div></fieldset>
+    <label class="fi-l" for="aw-date">Haben Sie schon einen Ausweis? Ausgestellt am (optional)</label><input id="aw-date" type="date" name="ausgestellt">
+  </div>
+  <div class="aw-out" aria-live="polite">
+    <p class="aw-kind"><span>Sie brauchen</span><b id="aw-k">Bedarfsausweis</b></p>
+    <p id="aw-why" class="aw-why"></p>
+    <ul class="aw-facts"><li id="aw-when"></li><li id="aw-valid">Gültig 10 Jahre ab Ausstellung.</li></ul>
+  </div>
+  <p class="note">Vereinfachte Übersicht nach dem Gebäudeenergiegesetz (GEG), Stand September 2026. Sonderfälle wie Baudenkmale oder Gebäude mit nachgewiesenem Wärmeschutz nach 1977 prüfen wir im Einzelfall.</p>
+</div>'''
+    body = ph('Energieausweise', 'Energetischer Statusbericht auf einen Blick: Ist Ihr Haus oder Ihr Gewerbeobjekt ein Energiefresser oder ein Energiesparer? Der Energieausweis zeigt es und liefert Hinweise auf Einsparpotenziale.', 'menge',
+              ['Für Wohn- und Gewerbegebäude', 'Bedarfs- oder Verbrauchsausweis', 'Mit konkreten Vorschlägen zur Sanierung'], 'Energieausweise')
+    body += sec(f'<div class="sec-head"><h2 class="split">Welchen Ausweis brauchen Sie?</h2><p class="reveal">Beantworten Sie drei kurze Fragen. Sie sehen sofort, welche Ausweisart vorgeschrieben ist und wann Sie ihn vorlegen müssen.</p></div>{tool}', 'gray', 'werkzeug')
+    body += sec(two('Pflicht beim Verkauf, nützlich bei der Sanierung.', '<p>Verpflichtend ist der Energieausweis bei Verkauf, Vermietung und Verpachtung einer Immobilie. Hilfreich ist er auch beim Kauf und vor einer Sanierung, denn er liefert wichtige Hinweise auf Einsparpotenziale und konkrete Vorschläge für Sanierungsmaßnahmen.</p>' + ticks(['Bedarfsausweis: berechnet aus Bauweise und Anlagentechnik, unabhängig vom Nutzerverhalten', 'Verbrauchsausweis: auf Basis der tatsächlichen Verbräuche der letzten drei Jahre', 'Für Wohngebäude und Nichtwohngebäude wie Büros, Hallen und Geschäfte', 'Modernisierungsempfehlungen, die zu Ihrem Gebäude passen']) + '<p>Für Unternehmen verbinden wir den Ausweis gern mit einer Effizienzberatung: <a href="energieeffizienz.html">Energieeffizienz</a>.</p>'))
+    body += more('energieausweis.html') + cta('Brauchen Sie einen Energieausweis?', 'Schicken Sie uns kurz Gebäudeart, Baujahr und Anlass – wir melden uns mit einem Angebot.', 'Energieausweis anfragen', 'kontakt.html?thema=ausweis')
     return body
 
 
@@ -748,12 +808,14 @@ def art_ld(a):
 PAGES = [
     dict(file='index.html', title='Warin Energie: Energiekosten für Unternehmen senken', desc='Energieberatung für Unternehmen aus Eschweiler: Energiebeschaffung, Vertragsmanagement, Rechnungsprüfung, Steueranträge und Effizienz aus einer Hand.', body='home', fn=index, prio='1.0'),
     dict(file='energiebeschaffung.html', title='Energiebeschaffung für Unternehmen | Warin Energie', desc='Strom und Erdgas zu bestmöglichen Marktpreisen: Ausschreibung, Tranchen oder Festpreis, Marktbeobachtung inklusive. Warin Energie, Eschweiler.', fn=p_beschaffung),
+    dict(file='marktbeobachtung.html', title='Marktbeobachtung Strom & Gas | Warin Energie', desc='Marktberichte und Handlungsempfehlungen: Wir beobachten Strom- und Gasmärkte und sagen Ihnen, wann ein guter Zeitpunkt zum Einkauf ist.', fn=p_markt),
     dict(file='immobilienwirtschaft.html', title='Energie für die Immobilienwirtschaft | Warin Energie', desc='Niedrige Nebenkosten für Mehrfamilienhäuser, Wohnanlagen und WEG: Bündelung, Ausschreibung, Vertragsmanagement und Rechnungsprüfung.', fn=p_immo),
     dict(file='mitarbeiter-tarife.html', title='Mitarbeiter-Tarife für Strom und Gas | Warin Energie', desc='Energietarife für die Haushalte Ihrer Belegschaft: Mitarbeiterbindung ohne Kosten für das Unternehmen, in Zusammenarbeit mit namhaften Versorgern.', fn=p_mitarbeiter),
     dict(file='vertragsmanagement.html', title='Vertragsmanagement für Energieverträge | Warin Energie', desc='Laufzeiten, Kündigungsfristen, Mengentoleranzen und Pönalen im Griff. Mit Fristen-Rechner für Ihren Strom- oder Gasliefervertrag.', fn=p_vertrag),
     dict(file='rechnungspruefung.html', title='Rechnungsprüfung Strom und Gas | Warin Energie', desc='Wir prüfen Ihre Energierechnungen Position für Position, übernehmen das Clearing mit dem Versorger und bereiten alles verständlich auf.', fn=p_rechnung),
     dict(file='antragsmanagement.html', title='Stromsteuer & Energiesteuer zurückholen | Warin Energie', desc='Entlastung bei Strom- und Energiesteuer, Besondere Ausgleichsregelung: Wir prüfen Voraussetzungen, stellen Anträge und halten die Fristen ein.', fn=p_antrag),
     dict(file='energieeffizienz.html', title='Energieeffizienz, Energieaudit & ISO 50001 | Warin Energie', desc='Energieaudit nach DIN EN 16247-1, ISO 50001, EnEfG-Pflichten, Förderung und Energieausweise. Mit Pflichten-Check für Ihr Unternehmen.', fn=p_effizienz),
+    dict(file='energieausweis.html', title='Energieausweis für Wohn- und Gewerbegebäude | Warin Energie', desc='Bedarfs- oder Verbrauchsausweis? Mit Ausweis-Check nach GEG: welche Art Sie brauchen, wann Sie ihn vorlegen müssen und wie lange er gilt.', fn=p_ausweis),
     dict(file='anlagen-contracting.html', title='Anlagen-Contracting ohne Investition | Warin Energie', desc='Heizung, BHKW, Druckluft oder Kälte ohne eigene Investition: 15 Jahre Vollgarantie, Wartung und 24-Stunden-Notdienst inklusive.', fn=p_contracting),
     dict(file='referenzen.html', title='Referenzen | Warin Energie Eschweiler', desc='Ein Auszug unserer Referenzen: Unternehmen aus Industrie, Gesundheit, Handel und Immobilienwirtschaft vertrauen Warin Energie.', fn=p_referenzen, prio='0.7'),
     dict(file='unternehmen.html', title='Unternehmen & Ansprechpartner | Warin Energie', desc='Warin Energie GmbH aus Eschweiler: unabhängige Energieberatung für Unternehmen. Ihr Ansprechpartner: Christoph Warin, Energiemanager für die Industrie.', fn=p_unternehmen, prio='0.7'),

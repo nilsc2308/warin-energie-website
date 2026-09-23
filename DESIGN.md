@@ -34,3 +34,7 @@ Nils: „eigentlich echt gut“, aber die Unterseiten mit den Werkzeugen seien s
 ## 4. Fassung (23.9.2026 abends): Szene „Der Weg einer Kilowattstunde“
 
 Nils fand die Foto-Szene „zu unbedeutsam“. Neu: Einstieg (Industriehalle) → Markt (Strommasten, Kurven-Wipe) → Übertragungsnetz → Verteilnetz → Ihr Betrieb (jeweils Weiterfahren: Foto schiebt sich von rechts herein) → Rechnung (Foto dunkelt ab, Rechnungskarte wird Schlussbild). Rechts baut sich eine Stromrechnung auf: graue Platzhalterzeilen füllen sich an jeder Station mit dem Kostenposten und dem, was Warin dagegen tut (Energiepreis, Umlagen, Netzentgelte & Messung, × Menge, Stromsteuer, Laufzeit & Fristen). Unten eine Leitung mit fünf Stationen, ein roter Punkt wandert mit. 560vh.
+
+## 5. Fassung (23.9.2026 abends): vollständige Leistungen
+
+Nils vermisste die Energieausweise. Abgleich mit der alten Seite: Energieausweise und Marktbeobachtung waren dort eigene Leistungen, bei mir nur Unterpunkte. Jetzt eigene Seiten mit Werkzeug: Marktbeobachtung = Preistreiber am Markt (Ereignisse wählen → Tendenz, schematisch), Energieausweise = Ausweis-Check (Gebäude, Anlass, Wohnungen, Baujahr → Ausweisart, Vorlagepflicht, Gültigkeit). Beide in Menü, Startseite (Hebel + Selbst ausprobieren), Fuß.

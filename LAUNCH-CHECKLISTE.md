@@ -21,7 +21,14 @@ Unbeauftragter Entwurf auf Basis von www.warin-energie.de (IONOS-Baukasten). **V
 - [ ] Musterrechnung: Positionsbezeichnungen (u. a. „Aufschlag für besondere Netznutzung“ statt § 19-Umlage)
 - [ ] Fristen-Rechner: Richtwerte 12 Monate Marktbeobachtung und 4 Wochen Puffer vor der Kündigungsfrist
 - [ ] Kostenhebel-Rechner: reine Multiplikation, keine Einsparzusage (so gekennzeichnet)
+- [ ] Ausweis-Check (GEG): Bedarfsausweis-Pflicht bis 4 Wohnungen und Bauantrag vor 1.11.1977, Aushang ab 250 m² (Behörden) / 500 m² (Publikumsverkehr), Vorlage bei Besichtigung, Gültigkeit 10 Jahre
+- [ ] Marktbeobachtung: Preistreiber-Grafik ist schematisch (so gekennzeichnet); bietet Warin tatsächlich regelmäßige Marktberichte an? (so auf der alten Seite)
 - [ ] Contracting: „15 Jahre Vollgarantie“, „24-Stunden-Notdienst“ – von der alten Seite übernommen, noch aktuell?
+
+## Von der alten Seite bewusst nicht übernommen
+- Portfolio-PDF zum Download (Druck-Andruck mit „PROOF“-Wasserzeichen, alte Adresse Eschenweg 40 und altes Logo) – neues PDF beim Kunden anfragen
+- Warnhinweis zum missbrauchten E-Mail-Postfach (21.09.2026)
+- Alter Haftungsausschluss und Datenschutztext mit Facebook-Plugin (durch aktuelle Texte ersetzt)
 
 ## Recht
 - [x] Impressum mit allen Angaben der alten Seite + Registereintrag + § 18 MStV + Verbraucherstreitbeilegung
@@ -31,17 +38,17 @@ Unbeauftragter Entwurf auf Basis von www.warin-energie.de (IONOS-Baukasten). **V
 - [ ] Datenschutzerklärung vom Kunden / Anwalt gegenlesen lassen
 
 ## Technik (gemessen 23.9.2026, lokaler Server)
-- [x] 22 Seiten: Start, 8 Leistungen, Referenzen, Unternehmen, Partner, Ratgeber + 3 Artikel, FAQ, Kontakt, Danke, 404, Impressum, Datenschutz
-- [x] **JS-Fehler: 0** auf allen 22 Seiten in Chromium und WebKit, je 1400 px und 390 px (jede Seite komplett durchgescrollt)
+- [x] 24 Seiten: Start, 10 Leistungen (wie auf der alten Seite, inkl. Marktbeobachtung und Energieausweise), Referenzen, Unternehmen, Partner, Ratgeber + 3 Artikel, FAQ, Kontakt, Danke, 404, Impressum, Datenschutz
+- [x] **JS-Fehler: 0** auf allen 24 Seiten in Chromium und WebKit, je 1400 px und 390 px (jede Seite komplett durchgescrollt)
 - [x] **Horizontales Scrollen: keins** (scrollWidth = clientWidth auf allen Seiten, beide Browser, beide Größen)
 - [x] **Kaputte Bilder: 0**
-- [x] **Ladegröße Startseite bis „load“: 471 KB** Desktop und Handy (Ziel < 900 / < 500 KB), gemessen per Resource Timing bis loadEventStart; Fotos 2–5 der Szene (ca. 500 KB) laden erst danach
-- [x] Links: 68 interne Ziele vorhanden, externe (jsDelivr ×3, netztransparenz.de) antworten 200, alle Anker vorhanden
+- [x] **Ladegröße Startseite bis „load“: 479 KB** Desktop und Handy (Ziel < 900 / < 500 KB), gemessen per Resource Timing bis loadEventStart; Fotos 2–5 der Szene (ca. 500 KB) laden erst danach
+- [x] Links: 70 interne Ziele vorhanden, externe (jsDelivr ×3, netztransparenz.de) antworten 200, alle Anker vorhanden
 - [x] Formular automatisiert getestet: leeres Absenden → Name, E-Mail, Datenschutz markiert; falsche E-Mail → markiert; korrekt → Weiterleitung auf danke.html; `?thema=antrag` wählt das Thema vor; Anhang > 8 MB wird abgewiesen
 - [x] Rechner getestet: Kostenhebel (2 Mio. kWh × 2 ct × 3 Jahre = 40.000 €/Jahr, 120.000 €), Fristen (Ende 31.12.2027, 3 Monate → Kündigung bis 30.9.2027), Pflichten (800 MWh → keine Pflicht; 3.000 → Pläne + Abwärme; 9.000 → + Managementsystem; Nicht-KMU 3.000 → + Audit), Matrix, Rechnung, Waage
 - [x] Netlify-Forms-fertig (data-netlify, Honeypot, multipart für Anhang). Auf GitHub Pages wird das Formular nicht verschickt, sondern führt nur zur Danke-Seite
 - [x] `netlify.toml` mit Sicherheits-Headern (CSP, HSTS, X-Frame-Options …) und Weiterleitungen der alten Adressen (/leistungen/, /referenzen/, /unternehmen/, /unsere-partner/, /impressum-datenschutz/, /energiecheck/, /sitemap/, /app/download/*)
-- [x] CSS/JS mit Versionsnummer (`?v=20260923-10`)
+- [x] CSS/JS mit Versionsnummer (`?v=20260923-12`)
 - [x] 2. Fassung: Szene 520vh statt 700vh, sonst kein festhängender Abschnitt mehr; Texte der Szene in 25 Schritten (Desktop) und 22 Schritten (Handy) geprüft – nie zwei Texte gleichzeitig
 - [ ] Lighthouse-Messung auf dem echten Hosting (mit Kompression)
 

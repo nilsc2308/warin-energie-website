@@ -89,6 +89,7 @@ h1{font-size:var(--h1)}h2{font-size:var(--h2)}h3,.h3{font-size:var(--h3);line-he
 .home .head.over.mopen{background:#fff}
 .home .head.over.mopen .nav a,.home .head.over.mopen .nav button,.home .head.over.mopen .tel,.home .head.over.mopen .wordmark i{color:var(--ink)}
 .home .head.over.mopen .wordmark b{color:var(--red)}
+.home .head.over.mopen .tel svg{color:var(--red)}
 .home .head.over.mopen .mark circle{fill:var(--red)}.home .head.over.mopen .mark polygon{fill:#fff}
 .menu-btn{display:none;align-items:center;gap:10px;background:none;border:0;font:inherit;font-weight:560;cursor:pointer;padding:8px 4px;color:var(--ink)}
 .menu-btn .lines{position:relative;width:22px;height:12px}
@@ -516,6 +517,35 @@ legend{font-weight:600;font-size:.95rem;margin-bottom:10px;padding:0}
 .flow b{display:block;font-size:1.3rem;font-weight:600;font-stretch:85%;margin-bottom:8px}
 .flow p{color:var(--ink2);margin:0}
 
+
+.drv,.aw{background:#fff;border-radius:var(--r-big);padding:clamp(20px,3vw,40px);box-shadow:0 1px 2px rgba(29,29,31,.05);display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(24px,4vw,56px)}
+.drv .note,.aw .note{grid-column:1/-1;margin:0}
+.drv-ctl{margin:0}
+.drv-out{display:grid;grid-template-columns:120px 1fr;gap:18px 24px;align-items:center}
+.drv-gauge svg{width:120px;height:120px}
+.drv-gauge circle{fill:var(--gray);stroke:var(--line);stroke-width:2}
+.drv-arrow{transform-origin:60px 60px;transform-box:view-box;transform:rotate(90deg);transition:transform .6s var(--ease)}
+.drv-arrow path{fill:none;stroke:var(--mute);stroke-width:8;stroke-linecap:round;stroke-linejoin:round;transition:stroke .3s}
+.drv.up .drv-arrow path{stroke:var(--red)}
+.drv.down .drv-arrow path{stroke:var(--ink)}
+.drv-res{display:flex;flex-direction:column;gap:4px;margin:0}
+.drv-res b{font-size:1.35rem;font-weight:650;font-stretch:85%}
+.drv-res span{color:var(--ink2);font-size:.95rem}
+.drv-list{grid-column:1/-1;list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.drv-list li{display:flex;flex-direction:column;gap:2px;padding:12px 16px;border-radius:var(--r);background:var(--gray);animation:pop .35s var(--ease)}
+.drv-list li[hidden]{display:none}
+.drv-list span{font-size:.93rem;color:var(--ink2)}
+.aw input[type=date]{font:inherit;font-size:1.05rem;padding:.55em .8em;border:1.5px solid var(--line);border-radius:var(--r);background:#fff;color:var(--ink);min-width:220px}
+.aw fieldset[hidden]{display:none}
+.aw-out{background:var(--gray);border-radius:var(--r);padding:clamp(20px,2.6vw,32px);align-self:start}
+.aw-kind{display:flex;flex-direction:column;gap:2px;margin:0 0 12px}
+.aw-kind span{font-size:.9rem;color:var(--mute)}
+.aw-kind b{font-size:clamp(1.6rem,2.6vw,2.2rem);font-weight:650;font-stretch:85%;color:var(--red);line-height:1.1}
+.aw-why{color:var(--ink2)}
+.aw-facts{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.aw-facts li{padding:12px 14px;background:#fff;border-radius:8px;font-size:.95rem}
+.aw-facts li.warn{color:var(--red);font-weight:560}
+
 /* ---------- Referenzen, Partner, Team, Ratgeber ---------- */
 .logo-wall{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
 .lw{aspect-ratio:3/2;display:flex;align-items:center;justify-content:center;padding:14% 16%;border:1px solid var(--soft);border-radius:var(--r);background:#fff;transition:transform .25s var(--ease),border-color .25s}
@@ -607,7 +637,7 @@ legend{font-weight:600;font-size:.95rem;margin-bottom:10px;padding:0}
   html{scroll-padding-top:84px}
   .nav,.right>.btn,.mega{display:none}
   .menu-btn{display:flex}
-  .tools-head,.guide,.two,.calc-grid,.refs-head,.env-grid,.fh-grid,.frist,.matrix,.pflicht,.waage,.inv-grid,.k-grid,.article,.hebel-grid{grid-template-columns:1fr}
+  .drv,.aw,.tools-head,.guide,.two,.calc-grid,.refs-head,.env-grid,.fh-grid,.frist,.matrix,.pflicht,.waage,.inv-grid,.k-grid,.article,.hebel-grid{grid-template-columns:1fr}
   .two h2,.env-intro,.inv-grid .sec-head,.art-side{position:static}
   .hebel-side{display:none}
   .about{grid-template-columns:1fr;min-height:0}
@@ -643,6 +673,8 @@ legend{font-weight:600;font-size:.95rem;margin-bottom:10px;padding:0}
   .iv-head,.iv-foot{padding-left:16px;padding-right:16px}
   .iv-info{padding:0 16px 14px}
   .frist-out b{font-size:1.2rem}
+  .drv-out{grid-template-columns:84px 1fr}
+  .drv-gauge svg{width:84px;height:84px}
   .tm.main{flex-direction:column;align-items:flex-start}
   /* Szene am Handy: Rechnung oben kompakt, Text unten, Leitung ganz unten */
   .cap{left:var(--gut);right:var(--gut);width:auto;bottom:calc(4vh + 74px)}

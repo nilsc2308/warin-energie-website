@@ -386,6 +386,46 @@
     set(tabs[0]);
   }
 
+  // Preistreiber am Markt (schematisch)
+  const drv = $('[data-drivers]');
+  if (drv) {
+    const arrow = $('.drv-arrow', drv);
+    const draw = () => {
+      const on = $$('.chip.on', drv); const sum = on.reduce((a, c) => a + +c.dataset.v, 0);
+      $$('.drv-list li', drv).forEach(li => li.hidden = !on.some(c => c.dataset.d === li.dataset.d));
+      const ang = on.length ? Math.max(-80, Math.min(80, -sum * 30)) : 90;
+      arrow.style.transform = `rotate(${on.length ? (sum > 0 ? 0 : sum < 0 ? 180 : 90) : 90}deg)`;
+      drv.classList.toggle('up', sum > 0); drv.classList.toggle('down', sum < 0);
+      $('#drv-t', drv).textContent = !on.length ? 'Wählen Sie ein Ereignis' : sum > 0 ? 'Tendenz: Strom wird teurer' : sum < 0 ? 'Tendenz: Strom wird günstiger' : 'Die Effekte heben sich teilweise auf';
+      $('#drv-s', drv).textContent = !on.length ? 'Die Grafik zeigt, in welche Richtung der Großhandelspreis tendiert.' : 'Genau solche Entwicklungen beobachten wir für Sie – und empfehlen, wann Sie einkaufen sollten.';
+    };
+    $$('.chip', drv).forEach(c => c.addEventListener('click', () => { c.classList.toggle('on'); c.setAttribute('aria-pressed', c.classList.contains('on')); draw(); }));
+    draw();
+  }
+
+  // Ausweis-Check (GEG, vereinfacht)
+  const aw = $('[data-ausweis]');
+  if (aw) {
+    const val = g => $(`[data-g=${g}] .chip.on`, aw).dataset.v;
+    const draw = () => {
+      const art = val('art'), anlass = val('anlass'), we = val('we'), bj = val('bj');
+      $$('.aw-wohn', aw).forEach(f => f.hidden = art !== 'wohn');
+      let k, why;
+      if (anlass === 'neubau') { k = 'Bedarfsausweis'; why = 'Bei Neubauten und umfassenden Sanierungen mit Berechnung ist der Bedarfsausweis vorgeschrieben.'; }
+      else if (art === 'wohn' && we === 'klein' && bj === 'alt') { k = 'Bedarfsausweis'; why = 'Wohngebäude mit bis zu vier Wohnungen und Bauantrag vor dem 1.11.1977 brauchen in der Regel den Bedarfsausweis – außer der Wärmeschutz erfüllt schon das Niveau der Wärmeschutzverordnung von 1977.'; }
+      else { k = 'Bedarfs- oder Verbrauchsausweis'; why = art === 'wohn' ? 'Sie haben die Wahl. Der Verbrauchsausweis ist günstiger und braucht die Verbräuche der letzten drei Jahre, der Bedarfsausweis ist unabhängig vom Nutzerverhalten.' : 'Bei Nichtwohngebäuden haben Sie meist die Wahl. Der Verbrauchsausweis braucht die Verbräuche für Wärme und Strom der letzten drei Jahre.'; }
+      const when = { verkauf: 'Kennwerte schon in der Immobilienanzeige angeben, Ausweis spätestens bei der Besichtigung vorlegen und nach dem Kauf übergeben.', miete: 'Kennwerte schon in der Anzeige angeben, Ausweis spätestens bei der Besichtigung vorlegen und nach Vertragsschluss übergeben.', neubau: 'Der Ausweis wird nach Fertigstellung ausgestellt und an den Eigentümer übergeben.', aushang: art === 'nwg' ? 'Gebäude mit starkem Publikumsverkehr: Ausweis gut sichtbar aushängen – bei behördlicher Nutzung ab 250 m², sonst ab 500 m² Nutzfläche, wenn ein Ausweis vorhanden ist.' : 'Eine Aushangpflicht betrifft Gebäude mit starkem Publikumsverkehr, also meist Nichtwohngebäude.' }[anlass];
+      $('#aw-k', aw).textContent = k; $('#aw-why', aw).textContent = why; $('#aw-when', aw).textContent = when;
+      const d = $('#aw-date', aw).value; const v = $('#aw-valid', aw);
+      if (d) { const x = new Date(d + 'T00:00:00'); x.setFullYear(x.getFullYear() + 10); const now = new Date(); const ok = x > now;
+        v.textContent = `Ihr Ausweis gilt bis ${x.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}${ok ? '.' : ' – er ist abgelaufen, Sie brauchen einen neuen.'}`; v.classList.toggle('warn', !ok); }
+      else { v.textContent = 'Gültig 10 Jahre ab Ausstellung.'; v.classList.remove('warn'); }
+    };
+    $$('.chips', aw).forEach(g => $$('.chip', g).forEach(c => c.addEventListener('click', () => { $$('.chip', g).forEach(x => { x.classList.remove('on'); x.setAttribute('aria-pressed', 'false'); }); c.classList.add('on'); c.setAttribute('aria-pressed', 'true'); draw(); })));
+    $('#aw-date', aw).addEventListener('input', draw);
+    draw();
+  }
+
   // Formel-Kopf der Unterseiten: Term wird nach dem Laden markiert
   const fhOn = $$('.fh-formula .term.on');
   if (fhOn.length && motion) { fhOn.forEach(t => t.classList.remove('on')); setTimeout(() => fhOn.forEach(t => t.classList.add('on')), introDelay * 1000 + 450); }
